@@ -21,7 +21,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
-      uses: actions/setup-dotnet@v1.2.*
+      uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -39,5 +39,5 @@ jobs:
         app-name: 'magestack'
         slot-name: 'production'
         package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_af15cb1b3fea4ae7bedb0542e48e6070 }}
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_0c3088a902b14ba2a5beaffecab2e80e }}
   
