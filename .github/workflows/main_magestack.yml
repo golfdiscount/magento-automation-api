@@ -11,7 +11,7 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
-  DOTNET_VERSION: 'v4.0'  # set this to the dotnet version to use
+  DOTNET_VERSION: 'v3.1'  # set this to the dotnet version to use
 
 jobs:
   build-and-deploy:
@@ -40,4 +40,3 @@ jobs:
         slot-name: 'production'
         package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_0c3088a902b14ba2a5beaffecab2e80e }}
-  
