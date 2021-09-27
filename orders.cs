@@ -27,9 +27,17 @@ namespace magestack
             var httpResult = await httpClient.GetAsync("https://api4.my-ip.io/ip");
             log.LogInformation(await httpResult.Content.ReadAsStringAsync());
 
+            /*
             Magestack server = new Magestack();
             string result = server.ExecuteCmd("cd var/export/mmexportcsv && ls | grep PT_WSI_09_24");
             server.CloseCxn();
+            */
+
+            SshTunnel client = new SshTunnel(Environment.GetEnvironmentVariable("stack_host"),
+                3022,
+                Environment.GetEnvironmentVariable("stack_user"),
+                Environment.GetEnvironmentVariable("stack_pass"));
+            string result = client.ExecuteCommand("cd var/export/mmexportcsv && ls | grep PT_WSI_09_27");
 
             return new OkObjectResult("Current directory listing:\n" + result);
         }
@@ -42,7 +50,7 @@ namespace magestack
         public Magestack()
         {
             ssh = new SshTunnel(Environment.GetEnvironmentVariable("stack_host"),
-                3022,
+                22,
                 Environment.GetEnvironmentVariable("stack_user"),
                 Environment.GetEnvironmentVariable("stack_pass"));
         }
