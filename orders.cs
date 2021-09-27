@@ -37,6 +37,7 @@ namespace magestack
         public Magestack()
         {
             ssh = new SshTunnel(Environment.GetEnvironmentVariable("stack_host"),
+                3022,
                 Environment.GetEnvironmentVariable("stack_user"),
                 Environment.GetEnvironmentVariable("stack_pass"));
         }
@@ -56,9 +57,9 @@ namespace magestack
     {
         private readonly SshClient client;
 
-        public SshTunnel(string host, string user, string pass)
+        public SshTunnel(string host, int port, string user, string pass)
         {
-            client = new SshClient(host, user, pass);
+            client = new SshClient(host, port, user, pass);
             client.Connect();
         }
 
