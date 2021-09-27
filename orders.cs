@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -21,6 +22,10 @@ namespace magestack
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
+
+            var httpClient = new HttpClient();
+            var httpResult = await httpClient.GetAsync("https://api4.my-ip.io/ip");
+            log.LogInformation(await httpResult.Content.ReadAsStringAsync());
 
             Magestack server = new Magestack();
             string result = server.ExecuteCmd("cd var/export/mmexportcsv && ls | grep PT_WSI_09_24");
