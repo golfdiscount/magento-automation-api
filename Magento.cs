@@ -107,6 +107,7 @@ namespace Magento
         public SftpClient(string host, int port, string user, string pass)
         {
             client = new Renci.SshNet.SftpClient(host, port, user, pass);
+            client.Connect();
         }
 
         public void ChangeDir(string dir)
