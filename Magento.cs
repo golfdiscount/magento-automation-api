@@ -9,11 +9,11 @@ namespace Magento
     class Magestack
     {
         private SshTunnel _ssh;
-        private  SftpClient _sftp;
-        private readonly string _host;
-        private readonly string _user;
-        private readonly string _pass;
-        private readonly int _port = 3022;
+        private SftpClient _sftp;
+        private string _host;
+        private string _user;
+        private string _pass;
+        private int _port = 3022;
 
         public Magestack()
         {
@@ -45,6 +45,35 @@ namespace Magento
             {
                 _sftp.Disconnect();
             }
+        }
+
+        public string ConnectionInfo()
+        {
+            return $"Host: {this.Host}\nUser: {this.User}\nPort: {this.Port}";
+        }
+
+        // Getters and setters
+        public string Host
+        {
+            get { return _host; }
+            set { _host = value; }
+        }
+
+        public string User
+        {
+            get { return _user; }
+            set { _user = value; }
+        }
+
+        public string Pass
+        {
+            set { _pass = value; }
+        }
+
+        public int Port
+        {
+            get { return _port; }
+            set { _port = value; }
         }
     }
 
