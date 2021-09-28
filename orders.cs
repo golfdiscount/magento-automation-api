@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,84 +10,38 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Renci.SshNet;
+using Magento;
+using Renci;
 
 
 namespace magestack
 {
-    public static class Orders
+    public class Orders
     {
-        [FunctionName("orders")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
+        [FunctionName("WsiOrders")]
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            var httpClient = new HttpClient();
-            var httpResult = await httpClient.GetAsync("https://api4.my-ip.io/ip");
-            log.LogInformation(await httpResult.Content.ReadAsStringAsync());
-
-            /*
+            log.LogInformation("Connecting to server");
             Magestack server = new Magestack();
-            string result = server.ExecuteCmd("cd var/export/mmexportcsv && ls | grep PT_WSI_09_24");
-            server.CloseCxn();
-            */
+            SftpClient sftp = server.CreateSftpClient();
 
-            SshTunnel client = new SshTunnel(Environment.GetEnvironmentVariable("stack_host"),
-                3022,
-                Environment.GetEnvironmentVariable("stack_user"),
-                Environment.GetEnvironmentVariable("stack_pass"));
-            string result = client.ExecuteCommand("cd var/export/mmexportcsv && ls | grep PT_WSI_09_27");
+            sftp.ChangeDir("var/export/mmexportcsv");
+            List<Renci.SshNet.Sftp.SftpFile> files = sftp.List();
 
+            string result = "";
+            foreach (Renci.SshNet.Sftp.SftpFile file in files)
+            {
+                result += file.Name + "\n";
+            }
+
+
+            log.LogInformation("Disconnecting from server");
+            server.Disconnect();
             return new OkObjectResult("Current directory listing:\n" + result);
         }
-    }
-
-    class Magestack
-    {
-        private readonly SshTunnel ssh;
-
-        public Magestack()
-        {
-            ssh = new SshTunnel(Environment.GetEnvironmentVariable("stack_host"),
-                22,
-                Environment.GetEnvironmentVariable("stack_user"),
-                Environment.GetEnvironmentVariable("stack_pass"));
-        }
-
-        public string ExecuteCmd(string cmd)
-        {
-            return ssh.ExecuteCommand(cmd);
-        }
-
-        public void CloseCxn()
-        {
-            ssh.Disconnect();
-        }
-    }
-
-    class SshTunnel
-    {
-        private readonly SshClient client;
-
-        public SshTunnel(string host, int port, string user, string pass)
-        {
-            client = new SshClient(host, port, user, pass);
-            client.Connect();
-        }
-
-        public void Disconnect()
-        {
-            client.Disconnect();
-        }
-
-        public string ExecuteCommand(string cmd)
-        {
-            var command = client.CreateCommand(cmd);
-            command.Execute();
-            return command.Result;
-        }
-    }
+    } 
 }
