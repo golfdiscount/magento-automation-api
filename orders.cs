@@ -27,6 +27,7 @@ namespace magestack
 
             log.LogInformation("Connecting to server");
             Magestack server = new Magestack();
+            log.LogInformation(server.ConnectionInfo());
             SftpClient sftp = server.CreateSftpClient();
 
             sftp.ChangeDir("var/export/mmexportcsv");

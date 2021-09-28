@@ -20,6 +20,7 @@ namespace magestack
             log.LogInformation($"Getting WSI order sheets for {today}");
 
             Magestack server = new Magestack();
+            log.LogInformation(server.ConnectionInfo());
             SftpClient sftp = server.CreateSftpClient();
             sftp.ChangeDir("var/export/mmexportcsv");
             List<Renci.SshNet.Sftp.SftpFile> files = sftp.List(
