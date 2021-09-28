@@ -27,11 +27,12 @@ namespace magestack
 
             log.LogInformation("Connecting to server");
             Magestack server = new Magestack();
-            log.LogInformation(server.ConnectionInfo());
             SftpClient sftp = server.CreateSftpClient();
 
             sftp.ChangeDir("var/export/mmexportcsv");
-            List<Renci.SshNet.Sftp.SftpFile> files = sftp.List();
+            List<Renci.SshNet.Sftp.SftpFile> files = sftp.List(
+                pattern: "PT_WSI_" + String.Format("{0:MM_dd_yyy}", DateTime.Today)
+            );
 
             string result = "";
             foreach (Renci.SshNet.Sftp.SftpFile file in files)

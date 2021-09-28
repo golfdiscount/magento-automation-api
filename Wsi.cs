@@ -20,11 +20,10 @@ namespace magestack
             log.LogInformation($"Getting WSI order sheets for {today}");
 
             Magestack server = new Magestack();
-            log.LogInformation(server.ConnectionInfo());
             SftpClient sftp = server.CreateSftpClient();
             sftp.ChangeDir("var/export/mmexportcsv");
             List<Renci.SshNet.Sftp.SftpFile> files = sftp.List(
-                pattern: "PT_WSI_" + String.Format("{0:MM_dd_yyy}", DateTime.Today)
+                pattern: "PT_WSI_" + string.Format("{0:MM_dd_yyy}", DateTime.Today)
             );
 
             log.LogInformation("Current directory listing:");
