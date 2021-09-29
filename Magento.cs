@@ -13,7 +13,7 @@ namespace Magento
         private string _host;
         private string _user;
         private string _pass;
-        private int _port = 3022;
+        private int _port = int.Parse(Environment.GetEnvironmentVariable("port"));
 
         public Magestack()
         {
@@ -45,11 +45,6 @@ namespace Magento
             {
                 _sftp.Disconnect();
             }
-        }
-
-        public string ConnectionInfo()
-        {
-            return $"Host: {this.Host}\nUser: {this.User}\nPort: {this.Port}";
         }
 
         // Getters and setters
@@ -146,6 +141,11 @@ namespace Magento
             }
 
             return fileList;
+        }
+
+        public byte[] ReadFile(SftpFile file)
+        {
+            return this.client.ReadAllBytes(file.FullName);
         }
 
         public string WorkingDirectory()
