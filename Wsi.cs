@@ -12,7 +12,7 @@ namespace magestack
     public class Wsi
     {
         [FunctionName("uploadOrders")]
-        public async Task<IActionResult> Run([TimerTrigger("45 8 * * 1-5")]TimerInfo timer, ILogger log)
+        public async Task<IActionResult> Run([TimerTrigger("45 15 * * *")]TimerInfo timer, ILogger log)
         {
             string today = DateTime.Today.ToString("MM/dd/yyyy");
             log.LogInformation($"Looking for WSI order files for {today}...");
