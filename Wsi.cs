@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace magestack
     public class Wsi
     {
         [FunctionName("uploadOrders")]
-        public async Task<IActionResult> Run([TimerTrigger("45 15 * * *")]TimerInfo timer, ILogger log)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestException req, ILogger log)
         {
             // 
             string today = DateTime.Today.ToString("MM/dd/yyyy");
