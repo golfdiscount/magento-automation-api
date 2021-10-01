@@ -30,21 +30,26 @@ namespace magestack
 
             log.LogInformation($"Found {files.Count} WSI files");
             log.LogInformation($"Disconnecting from {server.Host} server");
-            log.LogInformation("Processing files");
-
-            List<byte[]> fileByteArrays = ConvertFiles(files, sftp, log);
-            server.Disconnect();
-            log.LogInformation("Uploading to WSI API");
-
-            HttpClient requester = new HttpClient();
-            // Uploading to WSI can take a while as each record is inserted into a DB, timeout is set to 5 minutes
-            requester.Timeout = new TimeSpan(0, 5, 0);
-
-            foreach (byte[] file in fileByteArrays)
+            if (files.Count != 0)
             {
-                await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"), new ByteArrayContent(file));
-            }
+                log.LogInformation("Processing files");
 
+                List<byte[]> fileByteArrays = ConvertFiles(files, sftp, log);
+                server.Disconnect();
+                log.LogInformation("Uploading to WSI API");
+
+                HttpClient requester = new HttpClient();
+                // Uploading to WSI can take a while as each record is inserted into a DB, timeout is set to 5 minutes
+                requester.Timeout = new TimeSpan(0, 5, 0);
+
+                foreach (byte[] file in fileByteArrays)
+                {
+                    await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"), new ByteArrayContent(file));
+                }
+            } else
+            {
+                log.LogWarning("There were no WSI files to upload");
+            }
             return new OkObjectResult("All files processed and uploaded successfully");
         }
 
