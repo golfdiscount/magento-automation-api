@@ -13,6 +13,7 @@ namespace magestack
     public class WsiTimer
     {
         [FunctionName("uploadOrders-timer")]
+        [Singleton]
         public async Task<IActionResult> Run(
             [TimerTrigger("45 15 * * *")]TimerInfo myTimer,
             ILogger log)
