@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -14,7 +12,7 @@ namespace magestack
     {
         [FunctionName("uploadOrders-timer")]
         [Singleton]
-        public async Task<IActionResult> Run(
+        public async Task Run(
             [TimerTrigger("45 15 * * *")]TimerInfo myTimer,
             ILogger log)
         {
@@ -45,8 +43,6 @@ namespace magestack
             {
                 await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"), new ByteArrayContent(file));
             }
-
-            return new OkObjectResult("All files processed and uploaded successfully");
         }
 
         private List<byte[]> ConvertFiles(List<Renci.SshNet.Sftp.SftpFile> files, SftpClient sftp, ILogger log)
