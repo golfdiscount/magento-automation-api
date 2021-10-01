@@ -29,10 +29,10 @@ namespace magestack
 
             log.LogInformation($"Found {files.Count} WSI files");
             log.LogInformation($"Disconnecting from {server.Host} server");
-            server.Disconnect();
             log.LogInformation("Processing files");
 
             List<byte[]> fileByteArrays = ConvertFiles(files, sftp, log);
+            server.Disconnect();
             log.LogInformation("Uploading to WSI API");
 
             HttpClient requester = new HttpClient();
