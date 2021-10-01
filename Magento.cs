@@ -157,5 +157,11 @@ namespace Magento
         {
             client.Disconnect();
         }
+
+        public string WorkingDir
+        {
+            get { return this.WorkingDir; }
+            set { ChangeDir(value); }
+        }
     }
 }
