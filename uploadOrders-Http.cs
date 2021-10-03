@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Magento;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Magento;
 
 namespace magestack
 {
@@ -14,7 +15,7 @@ namespace magestack
     {
         [FunctionName("uploadOrders")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestException req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
             string today = DateTime.Today.ToString("MM/dd/yyyy");
