@@ -6,6 +6,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 
 namespace magestack
@@ -20,7 +21,7 @@ namespace magestack
         }
 
         [FunctionName("orders")]
-        public JsonResult Run(
+        public async Task<JsonResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "orders/{orderNum?}")] HttpRequest req,
             string orderNum,
             ILogger log)
@@ -37,7 +38,7 @@ namespace magestack
             qry += "ORDER BY created_at " +
                 "DESC LIMIT 10;";
 
-            using (MySqlDataReader reader = _server.ExecuteMySqlCommand(qry))
+            using (MySqlDataReader reader = await _server.ExecuteMySqlCommand(qry))
             {
                 while (reader.Read())
                 {
@@ -49,6 +50,7 @@ namespace magestack
                     results.Add(reader.GetString("increment_id"), values);
                 }
             }
+
             return new JsonResult(results);
         }
     }
