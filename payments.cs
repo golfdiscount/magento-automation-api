@@ -33,9 +33,11 @@ namespace magestack{
             {
 				while (reader.Read())
                 {
-					Dictionary<string, string> values = new Dictionary<string, string>();
-					values.Add("entity_id", reader.GetString("entity_id"));
-					values.Add("shipping", reader.GetString("shipping_description"));
+					Dictionary<string, string> values = new Dictionary<string, string>
+					{
+						{ "entity_id", reader.GetString("entity_id") },
+						{ "shipping", reader.GetString("shipping_description") }
+					};
 					results.Add(reader.GetString("increment_id"), values);
                 }
             }
