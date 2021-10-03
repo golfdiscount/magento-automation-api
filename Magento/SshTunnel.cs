@@ -1,4 +1,5 @@
 ﻿using Renci.SshNet;
+using System;
 
 namespace Magento
 {
@@ -10,6 +11,8 @@ namespace Magento
         {
             client = new SshClient(host, port, user, pass);
             client.Connect();
+            // Send a keep alive signal every 2 minutes
+            client.KeepAliveInterval = new TimeSpan(0, 2, 0);
         }
 
         public void Disconnect()
