@@ -30,7 +30,7 @@ namespace Magento
         public List<SftpFile> List(bool isDir = false, string pattern = null)
         {
             List<SftpFile> fileList = new List<SftpFile>();
-            IEnumerable<SftpFile> files = client.ListDirectory(WorkingDirectory());
+            IEnumerable<SftpFile> files = client.ListDirectory(this.WorkingDirectory);
 
             foreach (SftpFile file in files)
             {
@@ -60,19 +60,14 @@ namespace Magento
             return this.client.ReadAllBytes(file.FullName);
         }
 
-        public string WorkingDirectory()
-        {
-            return client.WorkingDirectory;
-        }
-
         public void Disconnect()
         {
             client.Disconnect();
         }
 
-        public string WorkingDir
+        public string WorkingDirectory
         {
-            get { return this.WorkingDir; }
+            get { return client.WorkingDirectory; }
             set { ChangeDir(value); }
         }
     }
