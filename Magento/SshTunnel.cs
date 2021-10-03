@@ -40,8 +40,8 @@ namespace Magento
         // Getters and setters
         public string WorkingDir
         {
-            get { return this.ExecuteCommand("pwd"); }
-            set { this.ExecuteCommand(value); }
+            get { return ExecuteCommand("pwd"); }
+            set { ExecuteCommand(value); }
         }
     }
 }
