@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 
 namespace Magento
@@ -32,23 +33,37 @@ namespace Magento
             return _sftp;
         }
 
-        public async void CreateMySqlConn(string host, uint port, string user, string pass)
+        public async Task<MySqlConnection> CreateMySqlConn(string host, uint port, string user, string pass)
         {
-            MySqlConnectionStringBuilder connString = new MySqlConnectionStringBuilder();
-            connString.Server = host;
-            connString.Port = port;
-            connString.UserID = user;
-            connString.Password = pass;
-            connString.Database = "golfdi_mage2";
+            MySqlConnectionStringBuilder connString = new MySqlConnectionStringBuilder
+            {
+                Server = host,
+                Port = port,
+                UserID = user,
+                Password = pass,
+                Database = "golfdi_mage2"
+            };
+
             _mysql = new MySqlConnection(connString.ConnectionString);
             await _mysql.OpenAsync();
+            return _mysql;
         }
 
-        public MySqlDataReader ExecuteMySqlCommand(string cmd)
+        public async Task<MySqlDataReader> ExecuteMySqlCommand(string cmd)
         {
             MySqlCommand dbCmd = _mysql.CreateCommand();
             dbCmd.CommandText = cmd;
-            return dbCmd.ExecuteReader();
+
+            try
+            {
+                return dbCmd.ExecuteReader();
+            } catch (MySqlException)
+            {
+                // In case of connection timeout, reopen connection and execute query again
+                await _mysql.OpenAsync();
+                return dbCmd.ExecuteReader();
+            }
+
         }
 
         public void Disconnect()
