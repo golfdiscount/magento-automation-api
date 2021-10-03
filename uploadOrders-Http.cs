@@ -20,7 +20,6 @@ namespace magestack
             _sftp = sftp;
         }
 
-
         [FunctionName("uploadOrders")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
@@ -29,7 +28,12 @@ namespace magestack
             string today = DateTime.Today.ToString("MM/dd/yyyy");
             log.LogInformation($"Looking for WSI order files for {today}...");
 
-            _sftp.ChangeDir("var/export/mmexportcsv");
+
+            if (_sftp.WorkingDirectory != "/microcloud/domains/golfdi/domains/golfdiscount.com/http/var/export/mmexportcsv")
+            {
+                _sftp.ChangeDir("var/export/mmexportcsv");
+            }
+
             List<Renci.SshNet.Sftp.SftpFile> files = _sftp.List(
                 pattern: "PT_WSI_" + string.Format("{0:MM_dd_yyy}", DateTime.Today)
             );
