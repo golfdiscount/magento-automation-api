@@ -3,7 +3,7 @@ using MySql.Data.MySqlClient;
 
 namespace Magento
 {
-    class Magestack
+    public class Magestack
     {
         private SshTunnel _ssh;
         private SftpClient _sftp;

@@ -5,7 +5,7 @@ using Renci.SshNet.Sftp;
 
 namespace Magento
 {
-    class SftpClient
+    public class SftpClient
     {
         private readonly Renci.SshNet.SftpClient client;
 

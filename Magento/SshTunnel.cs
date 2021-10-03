@@ -2,7 +2,7 @@
 
 namespace Magento
 {
-    class SshTunnel
+    public class SshTunnel
     {
         private readonly SshClient client;
 

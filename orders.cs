@@ -5,7 +5,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
-using System;
 using System.Collections.Generic;
 
 
@@ -13,20 +12,19 @@ namespace magestack
 {
     public class MySqlMagento
     {
+        private readonly Magestack _server;
+
+        public MySqlMagento(Magestack server)
+        {
+            _server = server;
+        }
+
         [FunctionName("orders")]
         public JsonResult Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "orders/{orderNum?}")] HttpRequest req,
             string orderNum,
             ILogger log)
-        {
-            Magestack server = new Magestack();
-            SshTunnel ssh = server.CreateSshClient();
-            
-            // Create a tunnel with connection to DB bounded to 127.0.0.1:3307
-            ssh.ForwardPort("127.0.0.1", 3307, Environment.GetEnvironmentVariable("db_host"), uint.Parse(Environment.GetEnvironmentVariable("db_port")));
-            // Create a connection to the DB that was previously bounded to 127.0.0.1:3307
-            server.CreateMySqlConn("127.0.0.1", 3307, Environment.GetEnvironmentVariable("db_user"), Environment.GetEnvironmentVariable("db_pass"));
-            
+        {   
             Dictionary<string, Dictionary<string, string>> results = new Dictionary<string, Dictionary<string, string>>();
             string qry = "SELECT increment_id, created_at, base_grand_total " +
                 "FROM golfdi_mage2.sales_order ";
@@ -39,7 +37,7 @@ namespace magestack
             qry += "ORDER BY created_at " +
                 "DESC LIMIT 10;";
 
-            using (MySqlDataReader reader = server.ExecuteMySqlCommand(qry))
+            using (MySqlDataReader reader = _server.ExecuteMySqlCommand(qry))
             {
                 while (reader.Read())
                 {
@@ -49,8 +47,6 @@ namespace magestack
                     results.Add(reader.GetString("increment_id"), values);
                 }
             }
-
-            server.Disconnect();
             return new JsonResult(results);
         }
     }

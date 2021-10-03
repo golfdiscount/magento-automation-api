@@ -13,6 +13,14 @@ namespace magestack
 {
     public class WsiHttp
     {
+        private readonly SftpClient _sftp;
+
+        public WsiHttp(SftpClient sftp)
+        {
+            _sftp = sftp;
+        }
+
+
         [FunctionName("uploadOrders")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
@@ -20,23 +28,18 @@ namespace magestack
         {
             string today = DateTime.Today.ToString("MM/dd/yyyy");
             log.LogInformation($"Looking for WSI order files for {today}...");
-            log.LogInformation("Connecting to SFTP server...");
-            Magestack server = new Magestack();
-            SftpClient sftp = server.CreateSftpClient();
 
-            sftp.ChangeDir("var/export/mmexportcsv");
-            List<Renci.SshNet.Sftp.SftpFile> files = sftp.List(
+            _sftp.ChangeDir("var/export/mmexportcsv");
+            List<Renci.SshNet.Sftp.SftpFile> files = _sftp.List(
                 pattern: "PT_WSI_" + string.Format("{0:MM_dd_yyy}", DateTime.Today)
             );
 
             log.LogInformation($"Found {files.Count} WSI files");
-            log.LogInformation($"Disconnecting from {server.Host} server");
             if (files.Count != 0)
             {
                 log.LogInformation("Processing files");
 
-                List<byte[]> fileByteArrays = ConvertFiles(files, sftp, log);
-                server.Disconnect();
+                List<byte[]> fileByteArrays = ConvertFiles(files, log);
                 log.LogInformation("Uploading to WSI API");
 
                 HttpClient requester = new HttpClient();
@@ -51,10 +54,10 @@ namespace magestack
             {
                 log.LogWarning("There were no WSI files to upload");
             }
-            return new OkObjectResult("All files processed and uploaded successfully");
+            return new OkObjectResult($"{files.Count} file(s) processed and uploaded successfully");
         }
 
-        private List<byte[]> ConvertFiles(List<Renci.SshNet.Sftp.SftpFile> files, SftpClient sftp, ILogger log)
+        private List<byte[]> ConvertFiles(List<Renci.SshNet.Sftp.SftpFile> files, ILogger log)
         {
             string result = "";
             List<byte[]> fileByteArrays = new List<byte[]>();
@@ -62,7 +65,7 @@ namespace magestack
             {
                 log.LogInformation($"Writing {file.Name}");
                 // Byte array of file contents
-                byte[] fileContents = sftp.ReadFile(file);
+                byte[] fileContents = _sftp.ReadFile(file);
 
                 fileByteArrays.Add(fileContents);
 
