@@ -33,7 +33,7 @@ namespace magestack
 
             if (orderNum != null)
             {
-                qry += $"WHERE increment_id={orderNum} ";
+                qry += $"WHERE increment_id=\"{orderNum}\" ";
             }
 
             qry += "ORDER BY created_at " +
