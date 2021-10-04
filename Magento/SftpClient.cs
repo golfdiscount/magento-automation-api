@@ -12,6 +12,11 @@ namespace Magento
         public SftpClient(string host, int port, string user, string pass)
         {
             client = new Renci.SshNet.SftpClient(host, port, user, pass);
+            Connect();
+        }
+
+        public void Connect()
+        {
             client.Connect();
         }
 
