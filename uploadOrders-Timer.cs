@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
@@ -10,7 +11,7 @@ namespace magestack
     {
         [FunctionName("triggerUploadOrders")]
         [Singleton]
-        public async Task Run(
+        public async Task<IActionResult> Run(
             [TimerTrigger("45 15 * * *")]TimerInfo myTimer,
             ILogger log)
         {
@@ -23,6 +24,8 @@ namespace magestack
             await requester.GetAsync(
                 Environment.GetEnvironmentVariable("magestack_func_url") + "uploadOrders"
                 );
+
+            return new OkObjectResult("Successfully pinged server to upload orders");
         }
     }
 }
