@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
 
 namespace Magento
 {
@@ -8,62 +6,25 @@ namespace Magento
     {
         private SshTunnel _ssh;
         private SftpClient _sftp;
-        private MySqlConnection _mysql;
+        private MagentoDb _mysql;
         private string _host;
         private string _user;
         private string _pass;
-        private int _port = int.Parse(Environment.GetEnvironmentVariable("stack_port"));
+        private int _port;
 
         public Magestack()
         {
             _host = Environment.GetEnvironmentVariable("stack_host");
             _user = Environment.GetEnvironmentVariable("stack_user");
             _pass = Environment.GetEnvironmentVariable("stack_pass");
-        }
+            _port = int.Parse(Environment.GetEnvironmentVariable("stack_port"));
 
-        public SshTunnel CreateSshClient()
-        {
             _ssh = new SshTunnel(_host, _port, _user, _pass);
-            return _ssh;
-        }
-
-        public SftpClient CreateSftpClient()
-        {
             _sftp = new SftpClient(_host, _port, _user, _pass);
-            return _sftp;
-        }
-
-        public async Task<MySqlConnection> CreateMySqlConn(string host, uint port, string user, string pass)
-        {
-            MySqlConnectionStringBuilder connString = new MySqlConnectionStringBuilder
-            {
-                Server = host,
-                Port = port,
-                UserID = user,
-                Password = pass,
-                Database = "golfdi_mage2"
-            };
-
-            _mysql = new MySqlConnection(connString.ConnectionString);
-            await _mysql.OpenAsync();
-            return _mysql;
-        }
-
-        public async Task<MySqlDataReader> ExecuteMySqlCommand(string cmd)
-        {
-            MySqlCommand dbCmd = _mysql.CreateCommand();
-            dbCmd.CommandText = cmd;
-
-            try
-            {
-                return dbCmd.ExecuteReader();
-            } catch (MySqlException)
-            {
-                // In case of connection timeout, reopen connection and execute query again
-                await _mysql.OpenAsync();
-                return dbCmd.ExecuteReader();
-            }
-
+            _mysql = new MagentoDb("127.0.0.1",
+                3307,
+                Environment.GetEnvironmentVariable("db_user"),
+                Environment.GetEnvironmentVariable("db_pass"));
         }
 
         public void Disconnect()
@@ -101,6 +62,21 @@ namespace Magento
         {
             get { return _port; }
             set { _port = value; }
+        }
+
+        public SftpClient Sftp
+        {
+            get { return _sftp; }
+        }
+
+        public SshTunnel Ssh
+        {
+            get { return _ssh; }
+        }
+
+        public MagentoDb Database
+        {
+            get { return _mysql; }
         }
     }
 }
