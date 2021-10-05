@@ -15,6 +15,7 @@ namespace magestack
             [TimerTrigger("45 15 * * *")]TimerInfo myTimer,
             ILogger log)
         {
+            // Timeout is set to 5 minutes as uploading orders can take a while
             HttpClient requester = new HttpClient { 
                 Timeout = new TimeSpan(0, 5, 0) 
             };
