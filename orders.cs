@@ -6,7 +6,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 
 namespace magestack
@@ -25,8 +24,8 @@ namespace magestack
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "orders/{orderNum?}")] HttpRequest req,
             string orderNum,
             ILogger log)
-        {   
-            Dictionary<string, Dictionary<string, string>> results = new Dictionary<string, Dictionary<string, string>>();
+        {
+            List<Dictionary<string, string>> results = new List<Dictionary<string, string>>();
             string qry = "SELECT increment_id, created_at, base_grand_total, customer_firstname, customer_lastname " +
                 "FROM golfdi_mage2.sales_order ";
 
@@ -42,15 +41,19 @@ namespace magestack
             {
                 while (reader.Read())
                 {
-                    Dictionary<string, string> values = new Dictionary<string, string>();
-                    values.Add("created_at", reader.GetString("created_at"));
-                    values.Add("base_grand_total", reader.GetString("base_grand_total"));
-                    values.Add("customer_firstname", reader.GetString("customer_firstname"));
-                    values.Add("customer_lastname", reader.GetString("customer_lastname"));
-                    results.Add(reader.GetString("increment_id"), values);
+                    Dictionary<string, string> values = new Dictionary<string, string>()
+                    {
+                        { "increment_id", reader.GetString("increment_id") }, 
+                        { "created_at", reader.GetString("created_at") },
+                        { "base_grand_total", reader.GetString("base_grand_total") },
+                        { "customer_firstname", reader.GetString("customer_firstname") },
+                        { "customer_lastname", reader.GetString("customer_lastname") }
+                        
+                    };
+
+                    results.Add(values);
                 }
             }
-
             return new JsonResult(results);
         }
     }
