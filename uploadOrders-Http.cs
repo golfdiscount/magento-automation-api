@@ -40,6 +40,7 @@ namespace magestack
                 _sftp.Connect();
             }
 
+            log.LogInformation(_sftp.WorkingDirectory);
 
             List<Renci.SshNet.Sftp.SftpFile> files = _sftp.List(
                 pattern: "PT_WSI_" + "10_05"
