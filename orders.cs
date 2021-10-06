@@ -13,15 +13,15 @@ namespace magestack
 {
     public class MySqlMagento
     {
-        private readonly Magestack _server;
+        private readonly MagentoDb _db;
 
-        public MySqlMagento(Magestack server)
+        public MySqlMagento(MagentoDb db)
         {
-            _server = server;
+            _db = db;
         }
 
         [FunctionName("orders")]
-        public async Task<JsonResult> Run(
+        public JsonResult Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "orders/{orderNum?}")] HttpRequest req,
             string orderNum,
             ILogger log)
@@ -38,7 +38,7 @@ namespace magestack
             qry += "ORDER BY created_at " +
                 "DESC LIMIT 10;";
 
-            using (MySqlDataReader reader = await _server.ExecuteMySqlCommand(qry))
+            using (MySqlDataReader reader = _db.ExecuteDbCommand(qry))
             {
                 while (reader.Read())
                 {
