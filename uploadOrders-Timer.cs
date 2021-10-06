@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
@@ -11,7 +10,7 @@ namespace magestack
     {
         [FunctionName("triggerUploadOrders")]
         [Singleton]
-        public async Task<IActionResult> Run(
+        public async Task Run(
             [TimerTrigger("45 15 * * *")]TimerInfo myTimer,
             ILogger log)
         {
@@ -20,13 +19,11 @@ namespace magestack
                 Timeout = new TimeSpan(0, 5, 0) 
             };
 
-            log.LogInformation($"Host: {Environment.GetEnvironmentVariable("magestack_func_url") + "uploadOrders"}");
+            log.LogInformation("Pinged API to start upload of WSI orders");
 
             await requester.GetAsync(
                 Environment.GetEnvironmentVariable("magestack_func_url") + "uploadOrders"
                 );
-
-            return new OkObjectResult("Successfully pinged server to upload orders");
         }
     }
 }
