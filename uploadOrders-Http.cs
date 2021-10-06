@@ -42,7 +42,8 @@ namespace magestack
 
 
             List<Renci.SshNet.Sftp.SftpFile> files = _sftp.List(
-                pattern: "PT_WSI_" + string.Format("{0:MM_dd_yyy}", DateTime.Today)
+                pattern: "PT_WSI_" + "10_05"
+                //string.Format("{0:MM_dd_yyy}", DateTime.Today)
             );
 
             log.LogInformation($"Found {files.Count} WSI files");
