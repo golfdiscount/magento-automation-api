@@ -34,9 +34,10 @@ namespace magestack
                 {
                     _sftp.ChangeDir("var/export/mmexportcsv");
                 }
-            } catch (Exception)
+            } catch (Exception e)
             {
                 // Reconnect incase of disconnect
+                log.LogInformation(e.ToString());
                 _sftp.Connect();
             }
 
