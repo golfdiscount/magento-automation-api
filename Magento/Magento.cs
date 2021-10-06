@@ -7,24 +7,24 @@ namespace Magento
         private readonly SshTunnel _ssh;
         private readonly SftpClient _sftp;
         private readonly MagentoDb _mysql;
-        private string _host;
-        private string _user;
-        private string _pass;
-        private int _port;
+        public string Host { get; set; }
+        public string User { get; set; }
+        public string Pass { get; set; }
+        public int Port { get; set; }
 
         public Magestack()
         {
-            _host = Environment.GetEnvironmentVariable("stack_host");
-            _user = Environment.GetEnvironmentVariable("stack_user");
-            _pass = Environment.GetEnvironmentVariable("stack_pass");
-            _port = int.Parse(Environment.GetEnvironmentVariable("stack_port"));
+            Host = Environment.GetEnvironmentVariable("stack_host");
+            User = Environment.GetEnvironmentVariable("stack_user");
+            Pass = Environment.GetEnvironmentVariable("stack_pass");
+            Port = int.Parse(Environment.GetEnvironmentVariable("stack_port"));
 
-            _ssh = new SshTunnel(_host, _port, _user, _pass);
+            _ssh = new SshTunnel(Host, Port, User, Pass);
             _ssh.ForwardPort("127.0.0.1", 3307, 
                 Environment.GetEnvironmentVariable("db_host"),
                 uint.Parse(Environment.GetEnvironmentVariable("db_port")));
 
-            _sftp = new SftpClient(_host, _port, _user, _pass);
+            _sftp = new SftpClient(Host, Port, User, Pass);
             _mysql = new MagentoDb("127.0.0.1",
                 3307,
                 Environment.GetEnvironmentVariable("db_user"),
@@ -42,30 +42,6 @@ namespace Magento
             {
                 _sftp.Disconnect();
             }
-        }
-
-        // Getters and setters
-        public string Host
-        {
-            get { return _host; }
-            set { _host = value; }
-        }
-
-        public string User
-        {
-            get { return _user; }
-            set { _user = value; }
-        }
-
-        public string Pass
-        {
-            set { _pass = value; }
-        }
-
-        public int Port
-        {
-            get { return _port; }
-            set { _port = value; }
         }
 
         public SftpClient Sftp
