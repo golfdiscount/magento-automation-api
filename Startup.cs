@@ -1,7 +1,6 @@
 ﻿using Magento;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 [assembly: FunctionsStartup(typeof(magestack.Startup))]
 

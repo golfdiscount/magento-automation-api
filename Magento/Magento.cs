@@ -4,9 +4,9 @@ namespace Magento
 {
     public class Magestack
     {
-        private SshTunnel _ssh;
-        private SftpClient _sftp;
-        private MagentoDb _mysql;
+        private readonly SshTunnel _ssh;
+        private readonly SftpClient _sftp;
+        private readonly MagentoDb _mysql;
         private string _host;
         private string _user;
         private string _pass;
@@ -20,6 +20,10 @@ namespace Magento
             _port = int.Parse(Environment.GetEnvironmentVariable("stack_port"));
 
             _ssh = new SshTunnel(_host, _port, _user, _pass);
+            _ssh.ForwardPort("127.0.0.1", 3307, 
+                Environment.GetEnvironmentVariable("db_host"),
+                uint.Parse(Environment.GetEnvironmentVariable("db_port")));
+
             _sftp = new SftpClient(_host, _port, _user, _pass);
             _mysql = new MagentoDb("127.0.0.1",
                 3307,
