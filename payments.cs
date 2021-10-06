@@ -5,21 +5,20 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace magestack{
 
 	public class Payments
 	{
-		private readonly Magestack _server;
+		private readonly MagentoDb _db;
 
-		public Payments(Magestack server)
+		public Payments(MagentoDb db)
 		{
-			_server = server;
+			_db = db;
 		}
 
 		[FunctionName("payments")]
-		public async Task<JsonResult> Run(
+		public JsonResult Run(
 			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "payment/{orderNum}")] HttpRequest req,
 			string orderNum
             )
@@ -29,7 +28,7 @@ namespace magestack{
 				"FROM sales_order " +
 				$"WHERE increment_id=\"{orderNum}\"";
 
-			using (MySqlDataReader reader = await _server.ExecuteMySqlCommand(qry))
+			using (MySqlDataReader reader = _db.ExecuteDbCommand(qry))
             {
 				while (reader.Read())
                 {
