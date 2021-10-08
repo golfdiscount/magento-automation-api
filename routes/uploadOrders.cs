@@ -28,6 +28,8 @@ namespace magestack
             string today = DateTime.Today.ToString("MM/dd/yyyy");
             log.LogInformation($"Looking for WSI order files for {today}...");
 
+            log.LogInformation(_sftp.WorkingDirectory);
+
             try
             {
                 if (_sftp.WorkingDirectory != "/microcloud/domains/golfdi/domains/golfdiscount.com/http/var/export/mmexportcsv")
