@@ -30,6 +30,11 @@ namespace Magento
             {
                 throw new ArgumentException("Directory given is not valid");
             }
+            catch (Renci.SshNet.Common.SshConnectionException)
+            {
+                Connect();
+                client.ChangeDirectory(dir);
+            }
         }
 
         public List<SftpFile> List(bool isDir = false, string pattern = null)
