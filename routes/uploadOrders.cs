@@ -28,22 +28,10 @@ namespace magestack
             string today = DateTime.Today.ToString("MM/dd/yyyy");
             log.LogInformation($"Looking for WSI order files for {today}...");
 
-            log.LogInformation(_sftp.WorkingDirectory);
-
-            try
+            if (_sftp.WorkingDirectory != "/microcloud/domains/golfdi/domains/golfdiscount.com/http/var/export/mmexportcsv")
             {
-                if (_sftp.WorkingDirectory != "/microcloud/domains/golfdi/domains/golfdiscount.com/http/var/export/mmexportcsv")
-                {
-                    _sftp.ChangeDir("var/export/mmexportcsv");
-                }
-            } catch (Exception e)
-            {
-                // Reconnect incase of disconnect
-                log.LogInformation(e.ToString());
-                _sftp.Connect();
+                _sftp.ChangeDir("var/export/mmexportcsv");
             }
-
-            log.LogInformation(_sftp.WorkingDirectory);
 
             List<Renci.SshNet.Sftp.SftpFile> files = _sftp.List(
                 pattern: "PT_WSI_" + string.Format("{0:MM_dd_yyy}", DateTime.Today)
