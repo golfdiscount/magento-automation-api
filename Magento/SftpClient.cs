@@ -11,7 +11,12 @@ namespace Magento
 
         public SftpClient(string host, int port, string user, string pass)
         {
-            client = new Renci.SshNet.SftpClient(host, port, user, pass);
+            client = new Renci.SshNet.SftpClient(host, port, user, pass)
+            {
+                // Send a keep alive interval every minute
+                KeepAliveInterval = new TimeSpan(0, 1, 0)
+            };
+
             Connect();
         }
 
@@ -29,11 +34,6 @@ namespace Magento
             catch (Renci.SshNet.Common.SftpPathNotFoundException)
             {
                 throw new ArgumentException("Directory given is not valid");
-            }
-            catch (Renci.SshNet.Common.SshConnectionException)
-            {
-                Connect();
-                client.ChangeDirectory(dir);
             }
         }
 
