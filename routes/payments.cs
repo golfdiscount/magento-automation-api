@@ -23,7 +23,7 @@ namespace magestack{
 			string orderNum
             )
         {
-			List<Dictionary<string, string>> results = new List<Dictionary<string, string>>();
+			Dictionary<string, string> results = new Dictionary<string, string>();
 			string qry = "SELECT increment_id, entity_id, shipping_description " +
 				"FROM sales_order " +
 				$"WHERE increment_id=\"{orderNum}\"";
@@ -33,14 +33,10 @@ namespace magestack{
             {
 				while (reader.Read())
                 {
-					Dictionary<string, string> values = new Dictionary<string, string>
-					{
-						{ "increment_id", reader.GetString("increment_id") },
-						{ "entity_id", reader.GetString("entity_id") },
-						{ "shipping", reader.GetString("shipping_description") }
-					};
 
-					results.Add(values);
+					results.Add("increment_id", reader.GetString("increment_id"));
+					results.Add("entity_id", reader.GetString("entity_id"));
+					results.Add("shipping", reader.GetString("shipping_description"));
                 }
             }
 			return new JsonResult(results);
