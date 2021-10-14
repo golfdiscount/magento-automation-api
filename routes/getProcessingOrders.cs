@@ -20,8 +20,15 @@ namespace magestack
 
         [FunctionName("getProcessingOrders")]
         public JsonResult Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
+            ILogger log)
         {
+            string startDate = req.Query["startDate"].ToString();
+            string endDate = req.Query["endDate"].ToString();
+
+            log.LogInformation(startDate);
+            log.LogInformation(endDate);
+
             List<string> results = new List<string>();
 
             string qry = "SELECT increment_id FROM sales_order " +
