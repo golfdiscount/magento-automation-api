@@ -9,10 +9,13 @@ namespace Magento
 
         public SshTunnel(string host, int port, string user, string pass)
         {
-            client = new SshClient(host, port, user, pass);
+            client = new SshClient(host, port, user, pass)
+            {   
+                // Send a keep alive signal every minute
+                KeepAliveInterval = new TimeSpan(0, 1, 0)
+            };
+
             client.Connect();
-            // Send a keep alive signal every 2 minutes
-            client.KeepAliveInterval = new TimeSpan(0, 2, 0);
         }
 
         public void Disconnect()

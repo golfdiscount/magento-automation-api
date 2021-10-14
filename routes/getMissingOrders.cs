@@ -24,7 +24,8 @@ namespace magestack
             List<string> results = new List<string>();
             string qry = "SELECT increment_id FROM sales_order " +
                 "WHERE created_at >= (NOW() - INTERVAL 2 WEEK) " +
-                "AND created_at <= (NOW() -INTERVAL 1 DAY) " +
+                "AND created_at <= (NOW() - INTERVAL 1 DAY) " +
+                "AND  increment_id NOT LIKE \"5000%\"" + 
                 "AND state = \"processing\" " +
                 "ORDER BY created_at DESC;";
 
