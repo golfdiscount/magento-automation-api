@@ -51,7 +51,7 @@ namespace magestack
 
                 foreach (KeyValuePair<string, byte[]> file in fileBytes)
                 {
-                    log.LogInformation($"Sending file {file.Key} to the WSI API");
+                    log.LogInformation($"Sending file {file.Key}");
                     HttpResponseMessage res = await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"), new ByteArrayContent(file.Value));
 
                     if (res.IsSuccessStatusCode)
