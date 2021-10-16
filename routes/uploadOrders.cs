@@ -42,16 +42,25 @@ namespace magestack
             {
                 log.LogInformation("Processing files");
 
-                List<byte[]> fileByteArrays = ConvertFiles(files, log);
+                Dictionary<string, byte[]> fileBytes = ConvertFiles(files, log);
                 log.LogInformation("Uploading to WSI API");
 
                 HttpClient requester = new HttpClient();
                 // Uploading to WSI can take a while as each record is inserted into a DB, timeout is set to 5 minutes
                 requester.Timeout = new TimeSpan(0, 5, 0);
 
-                foreach (byte[] file in fileByteArrays)
+                foreach (KeyValuePair<string, byte[]> file in fileBytes)
                 {
-                    await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"), new ByteArrayContent(file));
+                    log.LogInformation($"Sending file {file.Key} to the WSI API");
+                    HttpResponseMessage res = await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"), new ByteArrayContent(file.Value));
+
+                    if (res.IsSuccessStatusCode)
+                    {
+                        log.LogInformation($"Successfully uploaded {file.Key}");
+                    } else
+                    {
+                        log.LogWarning($"There was an issue uploading {file.Key}, please check the logs");
+                    }
                 }
             } else
             {
@@ -60,29 +69,17 @@ namespace magestack
             return new OkObjectResult($"{files.Count} file(s) processed and uploaded successfully");
         }
 
-        private List<byte[]> ConvertFiles(List<Renci.SshNet.Sftp.SftpFile> files, ILogger log)
+        private Dictionary<string, byte[]> ConvertFiles(List<Renci.SshNet.Sftp.SftpFile> files, ILogger log)
         {
-            string result = "";
-            List<byte[]> fileByteArrays = new List<byte[]>();
+            Dictionary<string, byte[]> fileBytes = new Dictionary<string, byte[]>();
             foreach (Renci.SshNet.Sftp.SftpFile file in files)
             {
                 log.LogInformation($"Writing {file.Name}");
                 // Byte array of file contents
-                byte[] fileContents = _sftp.ReadFile(file);
-
-                fileByteArrays.Add(fileContents);
-
-                // Concatenated value of byte array (a singular file)
-                string records = "";
-                foreach (byte value in fileContents)
-                {
-                    records += ((char)value).ToString();
-                }
-
-                result += records;
+                fileBytes.Add(file.Name, _sftp.ReadFile(file));
             }
 
-            return fileByteArrays;
+            return fileBytes;
         }
     }
 }
