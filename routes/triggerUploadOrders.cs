@@ -22,7 +22,7 @@ namespace magestack
             log.LogInformation("Pinged API to start upload of WSI orders");
 
             await requester.GetAsync(
-                Environment.GetEnvironmentVariable("magestack_func_url") + "uploadOrders"
+                Environment.GetEnvironmentVariable("magestack_func_url") + "/uploadOrders"
                 );
         }
     }
