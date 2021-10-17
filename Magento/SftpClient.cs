@@ -40,7 +40,16 @@ namespace Magento
         public List<SftpFile> List(bool isDir = false, string pattern = null)
         {
             List<SftpFile> fileList = new List<SftpFile>();
-            IEnumerable<SftpFile> files = client.ListDirectory(this.WorkingDirectory);
+            IEnumerable<SftpFile> files;
+            try
+            {
+                files = client.ListDirectory(this.WorkingDirectory);
+            } catch (Renci.SshNet.Common.SshConnectionException)
+            {
+                client.Connect();
+                files = client.ListDirectory(this.WorkingDirectory);
+            }
+            
 
             foreach (SftpFile file in files)
             {

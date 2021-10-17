@@ -19,7 +19,7 @@ namespace magestack{
 
 		[FunctionName("payments")]
 		public JsonResult Run(
-			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "payment/{orderNum}")] HttpRequest req,
+			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "payments/{orderNum}")] HttpRequest req,
 			string orderNum
             )
         {
