@@ -20,13 +20,15 @@ namespace Magento
             Port = int.Parse(Environment.GetEnvironmentVariable("stack_port"));
 
             _ssh = new SshTunnel(Host, Port, User, Pass);
-            _ssh.ForwardPort("127.0.0.1", 3307, 
+            // Open a forwarded port for DB access
+            _ssh.ForwardPort("127.0.0.1",
+                uint.Parse(Environment.GetEnvironmentVariable("bound_port")), 
                 Environment.GetEnvironmentVariable("db_host"),
                 uint.Parse(Environment.GetEnvironmentVariable("db_port")));
 
             _sftp = new SftpClient(Host, Port, User, Pass);
             _mysql = new MagentoDb("127.0.0.1",
-                3307,
+                uint.Parse(Environment.GetEnvironmentVariable("bound_port")),
                 Environment.GetEnvironmentVariable("db_user"),
                 Environment.GetEnvironmentVariable("db_pass"));
         }
