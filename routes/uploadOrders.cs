@@ -60,6 +60,9 @@ namespace magestack
                     } else
                     {
                         log.LogWarning($"There was an issue uploading {file.Key}, please check the logs");
+                        string error = await res.Content.ReadAsStringAsync();
+                        log.LogWarning(error);
+                        return new BadRequestObjectResult($"There was an issue uploading {file.Key}: {error}");
                     }
                 }
             } else
