@@ -42,12 +42,35 @@ namespace magestack
             {
                 log.LogInformation("Processing files");
 
+                Queue<Renci.SshNet.Sftp.SftpFile> recentFiles = _sftp.RecentFiles;
+
+                // Check any files have been recently uploaded
+                foreach (Renci.SshNet.Sftp.SftpFile file in files)
+                {
+                    if (recentFiles.Contains(file))
+                    {
+                        log.LogWarning($"{file.Name} has already been processed");
+                        // Remove file at the list index of file in queue already
+                        files.RemoveAt(files.FindIndex(recentFile => recentFile.Name == file.Name));
+                    }
+                    else
+                    {
+                        if (recentFiles.Count == 10)
+                        {
+                            recentFiles.Dequeue();
+                        }
+
+                        recentFiles.Enqueue(file);
+                    }
+                }
+
                 Dictionary<string, byte[]> fileBytes = ConvertFiles(files, log);
                 log.LogInformation("Uploading to WSI API");
 
-                HttpClient requester = new HttpClient();
-                // Uploading to WSI can take a while as each record is inserted into a DB, timeout is set to 5 minutes
-                requester.Timeout = new TimeSpan(0, 5, 0);
+                // Uploading to WSI can take a while as each record is inserted into a DB, request timeout is set to 5 minutes
+                HttpClient requester = new HttpClient {
+                    Timeout = new TimeSpan(0, 5, 0)
+                };
 
                 foreach (KeyValuePair<string, byte[]> file in fileBytes)
                 {
