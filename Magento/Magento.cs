@@ -2,16 +2,27 @@
 
 namespace Magento
 {
+    /// <summary>
+    /// Connection to the magento server
+    /// </summary>
     public class Magestack
     {
-        private readonly SshTunnel _ssh;
-        private readonly SftpClient _sftp;
-        private readonly MagentoDb _mysql;
+        /// <summary> Instance variable <c>Ssh</c> represents the SSH connection to the server </summary>
+        public SshTunnel Ssh { get; }
+        /// <summary> Instance variable <c>Sftp</c> represents the SFTP connection to the server </summary>
+        public SftpClient Sftp { get; }
+        /// <summary> Instance variable <c>Db</c> represents the MySQL database connection </summary>
+        public MagentoDb Db { get; }
+        /// <value> Host name to connect to </value>
         public string Host { get; set; }
+        /// <value> Username to the Magento stack </value>
         public string User { get; set; }
+        /// <value> Password to <see cref="User"/> </value>
         public string Pass { get; set; }
+        /// <value> Port that the server is running on </value>
         public int Port { get; set; }
 
+        /// <summary> Instantiates a new connection the Magento stack </summary>
         public Magestack()
         {
             Host = Environment.GetEnvironmentVariable("stack_host");
@@ -19,46 +30,32 @@ namespace Magento
             Pass = Environment.GetEnvironmentVariable("stack_pass");
             Port = int.Parse(Environment.GetEnvironmentVariable("stack_port"));
 
-            _ssh = new SshTunnel(Host, Port, User, Pass);
+            Ssh = new SshTunnel(Host, Port, User, Pass);
             // Open a forwarded port for DB access
-            _ssh.ForwardPort("127.0.0.1",
+            Ssh.ForwardPort("127.0.0.1",
                 uint.Parse(Environment.GetEnvironmentVariable("bound_port")), 
                 Environment.GetEnvironmentVariable("db_host"),
                 uint.Parse(Environment.GetEnvironmentVariable("db_port")));
 
-            _sftp = new SftpClient(Host, Port, User, Pass);
-            _mysql = new MagentoDb("127.0.0.1",
+            Sftp = new SftpClient(Host, Port, User, Pass);
+            Db = new MagentoDb("127.0.0.1",
                 uint.Parse(Environment.GetEnvironmentVariable("bound_port")),
                 Environment.GetEnvironmentVariable("db_user"),
                 Environment.GetEnvironmentVariable("db_pass"));
         }
 
+        /// <summary> Disconnects from the Magento server </summary>
         public void Disconnect()
         {
-            if (_ssh != null)
+            if (Ssh != null)
             {
-                _ssh.Disconnect();
+                Ssh.Disconnect();
             }
 
-            if (_sftp != null)
+            if (Sftp != null)
             {
-                _sftp.Disconnect();
+                Sftp.Disconnect();
             }
-        }
-
-        public SftpClient Sftp
-        {
-            get { return _sftp; }
-        }
-
-        public SshTunnel Ssh
-        {
-            get { return _ssh; }
-        }
-
-        public MagentoDb Database
-        {
-            get { return _mysql; }
         }
     }
 }
