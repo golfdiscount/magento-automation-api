@@ -13,7 +13,6 @@ namespace Magento
         public SftpClient(string host, int port, string user, string pass)
         {
             // Initialize a HashSet of size 10 of type SftpFile
-            recentFiles = new HashSet<SftpFile>(10);
             client = new Renci.SshNet.SftpClient(host, port, user, pass)
             {
                 // Send a keep alive interval every minute
