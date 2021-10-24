@@ -42,28 +42,6 @@ namespace magestack
             {
                 log.LogInformation("Processing files");
 
-                Queue<Renci.SshNet.Sftp.SftpFile> recentFiles = _sftp.RecentFiles;
-
-                // Check any files have been recently uploaded
-                foreach (Renci.SshNet.Sftp.SftpFile file in files)
-                {
-                    if (recentFiles.Contains(file))
-                    {
-                        log.LogWarning($"{file.Name} has already been processed");
-                        // Remove file at the list index of file in queue already
-                        files.RemoveAt(files.FindIndex(recentFile => recentFile.Name == file.Name));
-                    }
-                    else
-                    {
-                        if (recentFiles.Count == 10)
-                        {
-                            recentFiles.Dequeue();
-                        }
-
-                        recentFiles.Enqueue(file);
-                    }
-                }
-
                 Dictionary<string, byte[]> fileBytes = ConvertFiles(files, log);
                 log.LogInformation("Uploading to WSI API");
 

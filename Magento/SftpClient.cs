@@ -8,7 +8,6 @@ namespace Magento
     public class SftpClient
     {
         private readonly Renci.SshNet.SftpClient client;
-        public Queue<SftpFile> RecentFiles { get; }
 
         public SftpClient(string host, int port, string user, string pass)
         {
