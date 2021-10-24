@@ -11,15 +11,22 @@ using System.Threading.Tasks;
 
 namespace magestack
 {
+    /// <summary> Trigger object that uploads orders to WSI SFTP server </summary>
     public class WsiHttp
     {
         private readonly SftpClient _sftp;
 
+        /// <summary> Initiates a trigger run to upload orders to WSI SFTP server </summary>
+        /// <param name="sftp">SFTP client connected to Magento server</param>
         public WsiHttp(SftpClient sftp)
         {
             _sftp = sftp;
         }
 
+        /// <summary> Runs the trigger </summary>
+        /// <param name="req">Request to the HTTP endpoint</param>
+        /// <param name="log">Logging middleware</param>
+        /// <returns>HTTP response with results of uploading orders process</returns>
         [FunctionName("uploadOrders")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
@@ -41,28 +48,6 @@ namespace magestack
             if (files.Count != 0)
             {
                 log.LogInformation("Processing files");
-
-                Queue<Renci.SshNet.Sftp.SftpFile> recentFiles = _sftp.RecentFiles;
-
-                // Check any files have been recently uploaded
-                foreach (Renci.SshNet.Sftp.SftpFile file in files)
-                {
-                    if (recentFiles.Contains(file))
-                    {
-                        log.LogWarning($"{file.Name} has already been processed");
-                        // Remove file at the list index of file in queue already
-                        files.RemoveAt(files.FindIndex(recentFile => recentFile.Name == file.Name));
-                    }
-                    else
-                    {
-                        if (recentFiles.Count == 10)
-                        {
-                            recentFiles.Dequeue();
-                        }
-
-                        recentFiles.Enqueue(file);
-                    }
-                }
 
                 Dictionary<string, byte[]> fileBytes = ConvertFiles(files, log);
                 log.LogInformation("Uploading to WSI API");
@@ -95,6 +80,10 @@ namespace magestack
             return new OkObjectResult($"{files.Count} file(s) processed and uploaded successfully");
         }
 
+        /// <summary> Converts a list of files to their respective <c>byte[]</c> </summary>
+        /// <param name="files">List of file names to convert</param>
+        /// <param name="log">Logging middleware to output progress</param>
+        /// <returns><c>byte[]</c> associated with their file names</returns>
         private Dictionary<string, byte[]> ConvertFiles(List<Renci.SshNet.Sftp.SftpFile> files, ILogger log)
         {
             Dictionary<string, byte[]> fileBytes = new Dictionary<string, byte[]>();
