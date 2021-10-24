@@ -69,7 +69,7 @@ namespace magestack
 
                 // Uploading to WSI can take a while as each record is inserted into a DB, request timeout is set to 5 minutes
                 HttpClient requester = new HttpClient {
-                    Timeout = new TimeSpan(0, 5, 0)
+                    Timeout = new TimeSpan(0, 10, 0)
                 };
 
                 foreach (KeyValuePair<string, byte[]> file in fileBytes)
