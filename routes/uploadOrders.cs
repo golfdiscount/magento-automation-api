@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using Renci.SshNet.Sftp;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -40,11 +41,27 @@ namespace magestack
                 _sftp.ChangeDir("var/export/mmexportcsv");
             }
 
-            List<Renci.SshNet.Sftp.SftpFile> files = _sftp.List(
+            List<SftpFile> files = _sftp.List(
                 pattern: "PT_WSI_" + string.Format("{0:MM_dd_yyy}", DateTime.Today)
             );
-
             log.LogInformation($"Found {files.Count} WSI files");
+
+            // Check to see if files have been previously uploaded
+            List<SftpFile> filesCopy = new List<SftpFile>(files);
+            foreach (SftpFile file in filesCopy)
+            {
+                if (_sftp.Uploaded(file))
+                {
+                    log.LogWarning($"{file.Name} has already been uploaded");
+                    files.RemoveAll(f => f.Name == file.Name);
+                }
+                else
+                {
+                    log.LogInformation($"Adding {file.Name} to recently uploaded files");
+                    _sftp.TrackFile(file);
+                }
+            }
+
             if (files.Count != 0)
             {
                 log.LogInformation("Processing files");
@@ -54,9 +71,10 @@ namespace magestack
 
                 // Uploading to WSI can take a while as each record is inserted into a DB, request timeout is set to 5 minutes
                 HttpClient requester = new HttpClient {
-                    Timeout = new TimeSpan(0, 10, 0)
+                    Timeout = new TimeSpan(0, 5, 0)
                 };
 
+                // Send files to WSI API
                 foreach (KeyValuePair<string, byte[]> file in fileBytes)
                 {
                     log.LogInformation($"Sending file {file.Key}");
