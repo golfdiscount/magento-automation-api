@@ -11,10 +11,7 @@ namespace Magento
         // Maximum number of files to keep track of
         private const int MaxFileTrack = 20;
         private readonly Renci.SshNet.SftpClient client;
-<<<<<<< HEAD
-=======
         private readonly Queue<String> RecentFiles = new Queue<String>(MaxFileTrack);
->>>>>>> develop
 
         /// <summary> Instantiates an SFTP client on the Magento server </summary>
         /// <param name="host">Host to connect to</param>

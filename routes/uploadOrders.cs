@@ -45,8 +45,6 @@ namespace magestack
                 pattern: "PT_WSI_" + string.Format("{0:MM_dd_yyy}", DateTime.Today)
             );
             log.LogInformation($"Found {files.Count} WSI files");
-<<<<<<< HEAD
-=======
 
             // Check to see if files have been previously uploaded
             List<SftpFile> filesCopy = new List<SftpFile>(files);
@@ -64,7 +62,6 @@ namespace magestack
                 }
             }
 
->>>>>>> develop
             if (files.Count != 0)
             {
                 log.LogInformation("Processing files");
