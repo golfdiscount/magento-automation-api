@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using Renci.SshNet.Sftp;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -11,15 +12,22 @@ using System.Threading.Tasks;
 
 namespace magestack
 {
+    /// <summary> Trigger object that uploads orders to WSI SFTP server </summary>
     public class WsiHttp
     {
         private readonly SftpClient _sftp;
 
+        /// <summary> Initiates a trigger run to upload orders to WSI SFTP server </summary>
+        /// <param name="sftp">SFTP client connected to Magento server</param>
         public WsiHttp(SftpClient sftp)
         {
             _sftp = sftp;
         }
 
+        /// <summary> Runs the trigger </summary>
+        /// <param name="req">Request to the HTTP endpoint</param>
+        /// <param name="log">Logging middleware</param>
+        /// <returns>HTTP response with results of uploading orders process</returns>
         [FunctionName("uploadOrders")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
@@ -33,11 +41,30 @@ namespace magestack
                 _sftp.ChangeDir("var/export/mmexportcsv");
             }
 
-            List<Renci.SshNet.Sftp.SftpFile> files = _sftp.List(
+            List<SftpFile> files = _sftp.List(
                 pattern: "PT_WSI_" + string.Format("{0:MM_dd_yyy}", DateTime.Today)
             );
-
             log.LogInformation($"Found {files.Count} WSI files");
+<<<<<<< HEAD
+=======
+
+            // Check to see if files have been previously uploaded
+            List<SftpFile> filesCopy = new List<SftpFile>(files);
+            foreach (SftpFile file in filesCopy)
+            {
+                if (_sftp.Uploaded(file))
+                {
+                    log.LogWarning($"{file.Name} has already been uploaded");
+                    files.RemoveAll(f => f.Name == file.Name);
+                }
+                else
+                {
+                    log.LogInformation($"Adding {file.Name} to recently uploaded files");
+                    _sftp.TrackFile(file);
+                }
+            }
+
+>>>>>>> develop
             if (files.Count != 0)
             {
                 log.LogInformation("Processing files");
@@ -47,9 +74,10 @@ namespace magestack
 
                 // Uploading to WSI can take a while as each record is inserted into a DB, request timeout is set to 5 minutes
                 HttpClient requester = new HttpClient {
-                    Timeout = new TimeSpan(0, 10, 0)
+                    Timeout = new TimeSpan(0, 5, 0)
                 };
 
+                // Send files to WSI API
                 foreach (KeyValuePair<string, byte[]> file in fileBytes)
                 {
                     log.LogInformation($"Sending file {file.Key}");
@@ -73,6 +101,10 @@ namespace magestack
             return new OkObjectResult($"{files.Count} file(s) processed and uploaded successfully");
         }
 
+        /// <summary> Converts a list of files to their respective <c>byte[]</c> </summary>
+        /// <param name="files">List of file names to convert</param>
+        /// <param name="log">Logging middleware to output progress</param>
+        /// <returns><c>byte[]</c> associated with their file names</returns>
         private Dictionary<string, byte[]> ConvertFiles(List<Renci.SshNet.Sftp.SftpFile> files, ILogger log)
         {
             Dictionary<string, byte[]> fileBytes = new Dictionary<string, byte[]>();
