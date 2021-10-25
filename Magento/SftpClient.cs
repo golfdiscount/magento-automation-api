@@ -11,7 +11,7 @@ namespace Magento
         // Maximum number of files to keep track of
         private const int MaxFileTrack = 20;
         private readonly Renci.SshNet.SftpClient client;
-        private readonly Queue<SftpFile> RecentFiles = new Queue<SftpFile>(MaxFileTrack);
+        private readonly Queue<String> RecentFiles = new Queue<String>(MaxFileTrack);
 
         /// <summary> Instantiates an SFTP client on the Magento server </summary>
         /// <param name="host">Host to connect to</param>
@@ -96,7 +96,7 @@ namespace Magento
         /// <returns><c>byte[]</c> of file contents</returns>
         public byte[] ReadFile(SftpFile file)
         {
-            return this.client.ReadAllBytes(file.FullName);
+            return client.ReadAllBytes(file.FullName);
         }
 
         /// <summary>
@@ -111,7 +111,15 @@ namespace Magento
                 RecentFiles.Dequeue();
             }
 
-            RecentFiles.Enqueue(file);
+            RecentFiles.Enqueue(file.Name);
+        }
+
+        /// <summary> Checks to see if a file has been uploaded </summary>
+        /// <param name="file"> File to check</param>
+        /// <returns> <c>true</c> if file is in last 20 uploads, <c>false</c> if not </returns>
+        public bool Uploaded(SftpFile file)
+        {
+            return RecentFiles.Contains(file.Name);
         }
 
         /// <summary> Disconnects the SFTP client from the server </summary>
