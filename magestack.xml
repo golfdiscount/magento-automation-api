@@ -90,16 +90,15 @@
             <param name="file">File to be read</param>
             <returns><c>byte[]</c> of file contents</returns>
         </member>
-        <member name="M:Magento.SftpClient.TrackFile(Renci.SshNet.Sftp.SftpFile)">
+        <member name="M:Magento.SftpClient.TrackFile(System.String)">
             <summary>
-            Adds a file to the file tracking queue. If the queue already has 20 files, 
-            a file will be dequeued from the front and the new file enqueued to the back
+            Adds a file to the file tracking queue by its name
             </summary>
-            <param name="file">File to be tracked</param>
+            <param name="fileName">File name to be tracked</param>
         </member>
-        <member name="M:Magento.SftpClient.Uploaded(Renci.SshNet.Sftp.SftpFile)">
+        <member name="M:Magento.SftpClient.Uploaded(System.String)">
             <summary> Checks to see if a file has been uploaded </summary>
-            <param name="file"> File to check</param>
+            <param name="fileName"> File name to check</param>
             <returns> <c>true</c> if file is in last 20 uploads, <c>false</c> if not </returns>
         </member>
         <member name="M:Magento.SftpClient.Disconnect">
@@ -135,6 +134,19 @@
         </member>
         <member name="P:Magento.SshTunnel.WorkingDir">
             <summary> The current working directory of the SSH session </summary>
+        </member>
+        <member name="T:magestack.Payments">
+            <summary> A Payments trigger </summary>
+        </member>
+        <member name="M:magestack.Payments.#ctor(Magento.MagentoDb)">
+            <summary> Initializes a Payments object</summary>
+            <param name="db"> The connection to the Magento database</param>
+        </member>
+        <member name="M:magestack.Payments.Run(Microsoft.AspNetCore.Http.HttpRequest,System.String)">
+            <summary> Triggers a run of the payments route </summary>
+            <param name="req"> HttpRequest to this endpoint </param>
+            <param name="orderNum"> Order number passed in as a route parameter </param>
+            <returns></returns>
         </member>
         <member name="T:magestack.WsiHttp">
             <summary> Trigger object that uploads orders to WSI SFTP server </summary>
