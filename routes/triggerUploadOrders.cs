@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace magestack
 {
+    /// <summary>
+    /// An instance of a timer trigger to upload files to WSI
+    /// </summary>
     public class WsiTimer
     {
         [FunctionName("triggerUploadOrders")]
