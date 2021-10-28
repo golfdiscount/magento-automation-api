@@ -100,26 +100,25 @@ namespace Magento
         }
 
         /// <summary>
-        /// Adds a file to the file tracking queue. If the queue already has 20 files, 
-        /// a file will be dequeued from the front and the new file enqueued to the back
+        /// Adds a file to the file tracking queue by its name
         /// </summary>
-        /// <param name="file">File to be tracked</param>
-        public void TrackFile(SftpFile file)
+        /// <param name="fileName">File name to be tracked</param>
+        public void TrackFile(string fileName)
         {
             if (RecentFiles.Count == MaxFileTrack)
             {
                 RecentFiles.Dequeue();
             }
 
-            RecentFiles.Enqueue(file.Name);
+            RecentFiles.Enqueue(fileName);
         }
 
         /// <summary> Checks to see if a file has been uploaded </summary>
-        /// <param name="file"> File to check</param>
+        /// <param name="fileName"> File name to check</param>
         /// <returns> <c>true</c> if file is in last 20 uploads, <c>false</c> if not </returns>
-        public bool Uploaded(SftpFile file)
+        public bool Uploaded(string fileName)
         {
-            return RecentFiles.Contains(file.Name);
+            return RecentFiles.Contains(fileName);
         }
 
         /// <summary> Disconnects the SFTP client from the server </summary>
