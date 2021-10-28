@@ -55,11 +55,6 @@ namespace magestack
                     log.LogWarning($"{file.Name} has already been uploaded");
                     files.RemoveAll(f => f.Name == file.Name);
                 }
-                else
-                {
-                    log.LogInformation($"Adding {file.Name} to recently uploaded files");
-                    _sftp.TrackFile(file);
-                }
             }
 
             if (files.Count != 0)
@@ -77,19 +72,29 @@ namespace magestack
                 // Send files to WSI API
                 foreach (KeyValuePair<string, byte[]> file in fileBytes)
                 {
-                    log.LogInformation($"Sending file {file.Key}");
-                    HttpResponseMessage res = await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"), new ByteArrayContent(file.Value));
-
-                    if (res.IsSuccessStatusCode)
+                    if (!_sftp.Uploaded(file.Key))
                     {
-                        log.LogInformation($"Successfully uploaded {file.Key}");
+                        log.LogInformation($"Sending file {file.Key}");
+                        HttpResponseMessage res = await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"), new ByteArrayContent(file.Value));
+
+                        if (res.IsSuccessStatusCode)
+                        {
+                            log.LogInformation($"Successfully uploaded {file.Key}");
+                            log.LogInformation($"Adding {file.Key} to recently uploaded files");
+                            _sftp.TrackFile(file.Key);
+                        }
+                        else
+                        {
+                            log.LogWarning($"There was an issue uploading {file.Key}, please check the logs");
+                            string error = await res.Content.ReadAsStringAsync();
+                            log.LogWarning(error);
+                            return new BadRequestObjectResult($"There was an issue uploading {file.Key}: {error}");
+                        }
                     } else
                     {
-                        log.LogWarning($"There was an issue uploading {file.Key}, please check the logs");
-                        string error = await res.Content.ReadAsStringAsync();
-                        log.LogWarning(error);
-                        return new BadRequestObjectResult($"There was an issue uploading {file.Key}: {error}");
+                        log.LogInformation($"{file.Key} has already been uploaded");
                     }
+
                 }
             } else
             {
@@ -102,10 +107,10 @@ namespace magestack
         /// <param name="files">List of file names to convert</param>
         /// <param name="log">Logging middleware to output progress</param>
         /// <returns><c>byte[]</c> associated with their file names</returns>
-        private Dictionary<string, byte[]> ConvertFiles(List<Renci.SshNet.Sftp.SftpFile> files, ILogger log)
+        private Dictionary<string, byte[]> ConvertFiles(List<SftpFile> files, ILogger log)
         {
             Dictionary<string, byte[]> fileBytes = new Dictionary<string, byte[]>();
-            foreach (Renci.SshNet.Sftp.SftpFile file in files)
+            foreach (SftpFile file in files)
             {
                 log.LogInformation($"Writing {file.Name}");
                 // Byte array of file contents
