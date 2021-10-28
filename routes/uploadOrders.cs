@@ -46,17 +46,6 @@ namespace magestack
             );
             log.LogInformation($"Found {files.Count} WSI files");
 
-            // Check to see if files have been previously uploaded
-            List<SftpFile> filesCopy = new List<SftpFile>(files);
-            foreach (SftpFile file in filesCopy)
-            {
-                if (_sftp.Uploaded(file))
-                {
-                    log.LogWarning($"{file.Name} has already been uploaded");
-                    files.RemoveAll(f => f.Name == file.Name);
-                }
-            }
-
             if (files.Count != 0)
             {
                 log.LogInformation("Processing files");
