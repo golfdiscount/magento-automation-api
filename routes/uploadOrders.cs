@@ -81,7 +81,7 @@ namespace magestack
                         }
                     } else
                     {
-                        log.LogInformation($"{file.Key} has already been uploaded");
+                        log.LogWarnings($"{file.Key} has already been uploaded");
                     }
 
                 }
