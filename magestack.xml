@@ -148,6 +148,11 @@
             <param name="orderNum"> Order number passed in as a route parameter </param>
             <returns></returns>
         </member>
+        <member name="T:magestack.WsiTimer">
+            <summary>
+            An instance of a timer trigger to upload files to WSI
+            </summary>
+        </member>
         <member name="T:magestack.WsiHttp">
             <summary> Trigger object that uploads orders to WSI SFTP server </summary>
         </member>
