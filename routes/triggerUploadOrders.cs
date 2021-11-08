@@ -20,7 +20,7 @@ namespace magestack
         [FunctionName("triggerUploadOrders")]
         [Singleton]
         public async Task Run(
-            [TimerTrigger("45 15,03 * * *")]TimerInfo myTimer,
+            [TimerTrigger("45 16,04 * * *")]TimerInfo myTimer,
             ILogger log)
         {
             // Timeout is set to 5 minutes as uploading orders can take a while
