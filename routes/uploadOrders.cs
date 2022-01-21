@@ -8,6 +8,7 @@ using Renci.SshNet.Sftp;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace magestack
@@ -64,7 +65,9 @@ namespace magestack
                     if (!_sftp.Uploaded(file.Key))
                     {
                         log.LogInformation($"Sending file {file.Key}");
-                        HttpResponseMessage res = await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"), new ByteArrayContent(file.Value));
+                        HttpContent content = new ByteArrayContent(file.Value);
+                        content.Headers.Add("content-type", "text/csv");
+                        HttpResponseMessage res = await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"), content);
 
                         if (res.IsSuccessStatusCode)
                         {
@@ -95,7 +98,7 @@ namespace magestack
         /// <summary> Converts a list of files to their respective <c>byte[]</c> </summary>
         /// <param name="files">List of file names to convert</param>
         /// <param name="log">Logging middleware to output progress</param>
-        /// <returns><c>byte[]</c> associated with their file names</returns>
+        /// <returns>File names with their <c>byte[]</c> content</returns>
         private Dictionary<string, byte[]> ConvertFiles(List<SftpFile> files, ILogger log)
         {
             Dictionary<string, byte[]> fileBytes = new Dictionary<string, byte[]>();
