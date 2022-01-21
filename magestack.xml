@@ -135,6 +135,62 @@
         <member name="P:Magento.SshTunnel.WorkingDir">
             <summary> The current working directory of the SSH session </summary>
         </member>
+        <member name="T:magestack.GetProcessingOrders">
+            <summary>
+            Trigger for getting list of orders in processing
+            </summary>
+        </member>
+        <member name="M:magestack.GetProcessingOrders.#ctor(Magento.MagentoDb)">
+            <summary>
+            Initializes the trigger
+            </summary>
+            <param name="db"> Connection to the Magento database</param>
+        </member>
+        <member name="M:magestack.GetProcessingOrders.Run(Microsoft.AspNetCore.Http.HttpRequest,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Triggers a run of function
+            </summary>
+            <param name="req"> Http Request containing request information</param>
+            <param name="log"> Logger object </param>
+            <returns></returns>
+        </member>
+        <member name="T:magestack.ProductInfo">
+            <summary> Trigger for getting product information </summary>
+        </member>
+        <member name="M:magestack.ProductInfo.#ctor(Magento.MagentoDb)">
+            <summary>
+            Initializes the trigger
+            </summary>
+            <param name="db"> Connection to Magento database</param>
+        </member>
+        <member name="M:magestack.ProductInfo.Run(Microsoft.AspNetCore.Http.HttpRequest,System.String)">
+            <summary>
+            Triggers a run of the getProductInfo trigger
+            </summary>
+            <param name="req"> Http Request object </param>
+            <param name="sku"> SKU to get information for </param>
+            <returns></returns>
+        </member>
+        <member name="T:magestack.MySqlMagento">
+            <summary>
+            Trigger for getting order information
+            </summary>
+        </member>
+        <member name="M:magestack.MySqlMagento.#ctor(Magento.MagentoDb)">
+            <summary>
+            Initializes the trigger
+            </summary>
+            <param name="db"> Connection to Magento database</param>
+        </member>
+        <member name="M:magestack.MySqlMagento.Run(Microsoft.AspNetCore.Http.HttpRequest,System.String,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Triggers a run of the function
+            </summary>
+            <param name="req"> Http Reqeust object containing request information </param>
+            <param name="orderNum"> Order number to search for </param>
+            <param name="log"> Logger object </param>
+            <returns></returns>
+        </member>
         <member name="T:magestack.Payments">
             <summary> A Payments trigger </summary>
         </member>
@@ -153,6 +209,14 @@
             An instance of a timer trigger to upload files to WSI
             </summary>
         </member>
+        <member name="M:magestack.WsiTimer.Run(Microsoft.Azure.WebJobs.TimerInfo,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Triggers a run of the WsiTimer timer trigger
+            </summary>
+            <param name="myTimer"> TimerInfo object with information about the current timer trigger </param>
+            <param name="log"> Logger object </param>
+            <returns></returns>
+        </member>
         <member name="T:magestack.WsiHttp">
             <summary> Trigger object that uploads orders to WSI SFTP server </summary>
         </member>
@@ -170,7 +234,7 @@
             <summary> Converts a list of files to their respective <c>byte[]</c> </summary>
             <param name="files">List of file names to convert</param>
             <param name="log">Logging middleware to output progress</param>
-            <returns><c>byte[]</c> associated with their file names</returns>
+            <returns>File names with their <c>byte[]</c> content</returns>
         </member>
         <member name="T:magestack.Startup">
             <summary>
