@@ -10,15 +10,29 @@ using System.Collections.Generic;
 
 namespace magestack
 {
+    /// <summary>
+    /// Trigger for getting order information
+    /// </summary>
     public class MySqlMagento
     {
         private readonly MagentoDb _db;
 
+        /// <summary>
+        /// Initializes the trigger
+        /// </summary>
+        /// <param name="db"> Connection to Magento database</param>
         public MySqlMagento(MagentoDb db)
         {
             _db = db;
         }
 
+        /// <summary>
+        /// Triggers a run of the function
+        /// </summary>
+        /// <param name="req"> Http Reqeust object containing request information </param>
+        /// <param name="orderNum"> Order number to search for </param>
+        /// <param name="log"> Logger object </param>
+        /// <returns></returns>
         [FunctionName("orders")]
         public JsonResult Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "orders/{orderNum?}")] HttpRequest req,

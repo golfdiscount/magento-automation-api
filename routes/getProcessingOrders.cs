@@ -9,15 +9,28 @@ using System.Collections.Generic;
 
 namespace magestack
 {
-    public class getProcessingOrders
+    /// <summary>
+    /// Trigger for getting list of orders in processing
+    /// </summary>
+    public class GetProcessingOrders
     {
         private readonly MagentoDb _db;
 
-        public getProcessingOrders(MagentoDb db)
+        /// <summary>
+        /// Initializes the trigger
+        /// </summary>
+        /// <param name="db"> Connection to the Magento database</param>
+        public GetProcessingOrders(MagentoDb db)
         {
             _db = db;
         }
 
+        /// <summary>
+        /// Triggers a run of function
+        /// </summary>
+        /// <param name="req"> Http Request containing request information</param>
+        /// <param name="log"> Logger object </param>
+        /// <returns></returns>
         [FunctionName("getProcessingOrders")]
         public JsonResult Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
