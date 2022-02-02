@@ -209,8 +209,6 @@
             An instance of a timer trigger to upload files to WSI
             </summary>
         </member>
-<<<<<<< HEAD
-=======
         <member name="M:magestack.WsiTimer.Run(Microsoft.Azure.WebJobs.TimerInfo,Microsoft.Extensions.Logging.ILogger)">
             <summary>
             Triggers a run of the WsiTimer timer trigger
@@ -219,7 +217,6 @@
             <param name="log"> Logger object </param>
             <returns></returns>
         </member>
->>>>>>> 3df7339800eac01f7782e56a47d09198fd5201e8
         <member name="T:magestack.WsiHttp">
             <summary> Trigger object that uploads orders to WSI SFTP server </summary>
         </member>
@@ -237,7 +234,7 @@
             <summary> Takes a list of files of converts them to a singular byte array </summary>
             <param name="files">List of file names to convert</param>
             <param name="log">Logging middleware to output progress</param>
-            <returns>File names with their <c>byte[]</c> content</returns>
+            <returns><c>byte[]</c> associated with their file names</returns>
         </member>
         <member name="T:magestack.Startup">
             <summary>
