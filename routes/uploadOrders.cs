@@ -1,4 +1,5 @@
-﻿using Magento;
+﻿using Azure.Storage.Blobs;
+using Magento;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -49,39 +50,10 @@ namespace magestack
             if (files.Count != 0)
             {
                 log.LogInformation("Joining files");
-
                 byte[] fileBytes = ConvertFiles(files, log);
 
-                log.LogInformation("Uploading to WSI API");
-
-                HttpClient requester = new HttpClient
-                {
-                    Timeout = new TimeSpan(0, 5, 0)
-                };
-
-                HttpContent fileContent = new ByteArrayContent(fileBytes);
-                fileContent.Headers.Add("content-type", "text/csv");
-
-                HttpResponseMessage res = await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"),
-                   fileContent);
-
-                if (res.IsSuccessStatusCode)
-                {
-                    foreach (SftpFile file in files)
-                    {
-                        log.LogInformation($"Successfully uploaded {file.Name}");
-                        log.LogInformation($"Adding {file.Name} to recently uploaded files");
-                        _sftp.TrackFile(file.Name);
-                    }
-
-                }
-                else
-                {
-                    log.LogWarning($"There was an issue uploading the files, please check the logs");
-                    string error = await res.Content.ReadAsStringAsync();
-                    log.LogWarning(error);
-                    return new BadRequestObjectResult($"There was an issue uploading the files: {error}");
-                }
+                log.LogInformation("Uploading to WSI storage container");
+                UploadToStorage(fileBytes);
             } else
             {
                 log.LogWarning("There were no WSI files to upload");
@@ -100,7 +72,6 @@ namespace magestack
             {
                 if(!_sftp.Uploaded(file.Name))
                 {
-                    log.LogInformation($"Writing {file.Name}");
                     // Byte array of file contents
                     fileBytes.AddRange(_sftp.ReadFile(file));
                 } else
@@ -111,6 +82,17 @@ namespace magestack
             }
 
             return fileBytes.ToArray();
+        }
+
+        /// <summary> Takes file contents and uploads them to a blob at WSI storage </summary>
+        /// <param name="fileContent"><c>byte[]</c> of the file content</param>
+        private void UploadToStorage(byte[] fileContent)
+        {
+            string fileName = Guid.NewGuid().ToString();
+            BlobClient file = new BlobClient(Environment.GetEnvironmentVariable("wsi_storage"),
+                "wsi-orders",
+                fileName);
+            file.Upload(new BinaryData(fileContent));
         }
     }
 }
