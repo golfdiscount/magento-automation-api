@@ -51,16 +51,19 @@ namespace magestack
                 log.LogInformation("Joining files");
 
                 byte[] fileBytes = ConvertFiles(files, log);
+
                 log.LogInformation("Uploading to WSI API");
 
-                Console.WriteLine(fileBytes.ToString());
-
-/*                HttpClient requester = new HttpClient {
+                HttpClient requester = new HttpClient
+                {
                     Timeout = new TimeSpan(0, 5, 0)
                 };
 
-                HttpResponseMessage res = await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"), 
-                    new ByteArrayContent(fileBytes));
+                HttpContent fileContent = new ByteArrayContent(fileBytes);
+                fileContent.Headers.Add("content-type", "text/csv");
+
+                HttpResponseMessage res = await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"),
+                   fileContent);
 
                 if (res.IsSuccessStatusCode)
                 {
@@ -78,7 +81,7 @@ namespace magestack
                     string error = await res.Content.ReadAsStringAsync();
                     log.LogWarning(error);
                     return new BadRequestObjectResult($"There was an issue uploading the files: {error}");
-                }*/
+                }
             } else
             {
                 log.LogWarning("There were no WSI files to upload");
