@@ -44,48 +44,43 @@ namespace magestack
             List<SftpFile> files = _sftp.List(
                 pattern: "PT_WSI_" + string.Format("{0:MM_dd_yyy}", DateTime.Today)
             );
-            log.LogInformation($"Found {files.Count} WSI files");
+            log.LogInformation($"Found {files.Count} WSI file(s)");
 
             if (files.Count != 0)
             {
-                log.LogInformation("Processing files");
+                log.LogInformation("Joining files");
 
-                Dictionary<string, byte[]> fileBytes = ConvertFiles(files, log);
+                byte[] fileBytes = ConvertFiles(files, log);
+
                 log.LogInformation("Uploading to WSI API");
 
-                // Uploading to WSI can take a while as each record is inserted into a DB, request timeout is set to 5 minutes
-                HttpClient requester = new HttpClient {
+                HttpClient requester = new HttpClient
+                {
                     Timeout = new TimeSpan(0, 5, 0)
                 };
 
-                // Send files to WSI API
-                foreach (KeyValuePair<string, byte[]> file in fileBytes)
-                {
-                    if (!_sftp.Uploaded(file.Key))
-                    {
-                        log.LogInformation($"Sending file {file.Key}");
-                        HttpContent content = new ByteArrayContent(file.Value);
-                        content.Headers.Add("content-type", "text/csv");
-                        HttpResponseMessage res = await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"), content);
+                HttpContent fileContent = new ByteArrayContent(fileBytes);
+                fileContent.Headers.Add("content-type", "text/csv");
 
-                        if (res.IsSuccessStatusCode)
-                        {
-                            log.LogInformation($"Successfully uploaded {file.Key}");
-                            log.LogInformation($"Adding {file.Key} to recently uploaded files");
-                            _sftp.TrackFile(file.Key);
-                        }
-                        else
-                        {
-                            log.LogWarning($"There was an issue uploading {file.Key}, please check the logs");
-                            string error = await res.Content.ReadAsStringAsync();
-                            log.LogWarning(error);
-                            return new BadRequestObjectResult($"There was an issue uploading {file.Key}: {error}");
-                        }
-                    } else
+                HttpResponseMessage res = await requester.PostAsync(Environment.GetEnvironmentVariable("wsi_url"),
+                   fileContent);
+
+                if (res.IsSuccessStatusCode)
+                {
+                    foreach (SftpFile file in files)
                     {
-                        log.LogWarning($"{file.Key} has already been uploaded");
+                        log.LogInformation($"Successfully uploaded {file.Name}");
+                        log.LogInformation($"Adding {file.Name} to recently uploaded files");
+                        _sftp.TrackFile(file.Name);
                     }
 
+                }
+                else
+                {
+                    log.LogWarning($"There was an issue uploading the files, please check the logs");
+                    string error = await res.Content.ReadAsStringAsync();
+                    log.LogWarning(error);
+                    return new BadRequestObjectResult($"There was an issue uploading the files: {error}");
                 }
             } else
             {
@@ -94,21 +89,28 @@ namespace magestack
             return new OkObjectResult($"{files.Count} file(s) processed and uploaded successfully");
         }
 
-        /// <summary> Converts a list of files to their respective <c>byte[]</c> </summary>
+        /// <summary> Takes a list of files of converts them to a singular byte array </summary>
         /// <param name="files">List of file names to convert</param>
         /// <param name="log">Logging middleware to output progress</param>
-        /// <returns>File names with their <c>byte[]</c> content</returns>
-        private Dictionary<string, byte[]> ConvertFiles(List<SftpFile> files, ILogger log)
+        /// <returns><c>byte[]</c> associated with their file names</returns>
+        private byte[] ConvertFiles(List<SftpFile> files, ILogger log)
         {
-            Dictionary<string, byte[]> fileBytes = new Dictionary<string, byte[]>();
+            List<byte> fileBytes = new List<byte>();
             foreach (SftpFile file in files)
             {
-                log.LogInformation($"Writing {file.Name}");
-                // Byte array of file contents
-                fileBytes.Add(file.Name, _sftp.ReadFile(file));
+                if(!_sftp.Uploaded(file.Name))
+                {
+                    log.LogInformation($"Writing {file.Name}");
+                    // Byte array of file contents
+                    fileBytes.AddRange(_sftp.ReadFile(file));
+                } else
+                {
+                    log.LogWarning($"{file.Name} has already been uploaded");
+                }
+
             }
 
-            return fileBytes;
+            return fileBytes.ToArray();
         }
     }
 }
