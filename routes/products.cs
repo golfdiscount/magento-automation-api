@@ -18,7 +18,7 @@ namespace magestack.routes
             _db_cnx = dbCnx;
         }
 
-        [FunctionName("Function1")]
+        [FunctionName("GetProducts")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "products/{sku}")] HttpRequest req,
             string sku,
