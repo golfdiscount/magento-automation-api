@@ -19,7 +19,7 @@ namespace magestack.routes
         }
 
         [FunctionName("GetProducts")]
-        public async Task<IActionResult> Run(
+        public IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "products/{sku}")] HttpRequest req,
             string sku,
             ILogger log)

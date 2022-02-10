@@ -30,7 +30,7 @@ namespace magestack
         /// <param name="log">Logging middleware</param>
         /// <returns>HTTP response with results of uploading orders process</returns>
         [FunctionName("uploadOrders")]
-        public async Task<IActionResult> Run(
+        public IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
