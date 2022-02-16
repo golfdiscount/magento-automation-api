@@ -8,8 +8,6 @@ using Microsoft.Extensions.Logging;
 using Renci.SshNet.Sftp;
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace magestack
 {
