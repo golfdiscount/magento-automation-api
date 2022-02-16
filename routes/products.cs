@@ -1,21 +1,22 @@
-using Magento;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using MySql.Data;
 using MySql.Data.MySqlClient;
-using System.Threading.Tasks;
+using System;
 using System.Collections.Generic;
+using System.Web.Http;
 
 namespace magestack.routes
 {
     public class Products
     {
-        private readonly MagentoDb _db_cnx;
-        public Products(MagentoDb dbCnx)
+        private readonly MySqlConnection _cnx;
+        public Products(MySqlConnection cnx)
         {
-            _db_cnx = dbCnx;
+            _cnx = cnx;
         }
 
         [FunctionName("GetProducts")]
@@ -24,6 +25,19 @@ namespace magestack.routes
             string sku,
             ILogger log)
         {
+            log.LogInformation("Opening connection to database");
+
+            try
+            {
+                _cnx.Open();
+            }
+            catch (Exception e)
+            {
+                log.LogInformation("There was an error connection to the database");
+                log.LogError(e.ToString());
+                return new InternalServerErrorResult();
+            }
+
             log.LogInformation($"Searching for {sku} in the database");
 
             string qry = $@"SELECT v1.value AS 'name', e.sku,
@@ -61,26 +75,29 @@ namespace magestack.routes
                     WHERE entity_type_code = 'catalog_product'))
             WHERE e.sku = '{sku}';";
 
-            MySqlDataReader db_res = _db_cnx.ExecuteDbCommand(qry);
+            MySqlCommand dbCmd = new MySqlCommand(qry, _cnx);
+            MySqlDataReader dataReader = dbCmd.ExecuteReader();
+
             Dictionary<string, string> result = new Dictionary<string, string>();
 
-            if (!db_res.HasRows)
+            if (!dataReader.HasRows)
             {
-                db_res.Close();
+                dataReader.Close();
                 return new NotFoundObjectResult($"{sku} was not found in Magento");
             }
 
-            while(db_res.Read())
+            while(dataReader.Read())
             {
 
-                result.Add("name", db_res.GetString(0));
-                result.Add("sku", db_res.GetString(1));
-                result.Add("price", db_res.GetString(2));
-                result.Add("description", db_res.GetString(3));
+                result.Add("name", dataReader.GetString(0));
+                result.Add("sku", dataReader.GetString(1));
+                result.Add("price", dataReader.GetString(2));
+                result.Add("description", dataReader.GetString(3));
 
             }
 
-            db_res.Close();
+            dataReader.Close();
+            _cnx.Close();
             return new OkObjectResult(result);
         }
     }
