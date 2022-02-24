@@ -28,6 +28,11 @@ namespace magestack
             MySqlConnection db = ConnectDb(secretClient);
             SftpClient sftp = ConnectSftp(secretClient);
 
+            try
+            {
+                db.
+            }
+
             builder.Services.AddSingleton(db);
             builder.Services.AddSingleton(sftp);
         }
@@ -49,6 +54,7 @@ namespace magestack
                 dbHost.Value,
                 uint.Parse(dbPort.Value));
             ssh.AddForwardedPort(forwardedPort);
+            forwardedPort.Start();
 
             MySqlConnectionStringBuilder cnxString = new MySqlConnectionStringBuilder
             {
