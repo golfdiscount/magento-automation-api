@@ -86,14 +86,12 @@ namespace magestack.routes
                 return new NotFoundObjectResult($"{sku} was not found in Magento");
             }
 
-            while(dataReader.Read())
+            while (dataReader.Read())
             {
-
                 result.Add("name", dataReader.GetString(0));
                 result.Add("sku", dataReader.GetString(1));
                 result.Add("price", dataReader.GetString(2));
                 result.Add("description", dataReader.GetString(3));
-
             }
 
             dataReader.Close();
