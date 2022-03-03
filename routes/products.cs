@@ -25,6 +25,7 @@ namespace magestack.routes
             string sku,
             ILogger log)
         {
+            IActionResult res;
             log.LogInformation($"Searching for {sku} in the database");
             _cnx.Open();
 
@@ -77,29 +78,32 @@ namespace magestack.routes
             WHERE e.sku = '{sku}';";
 
             MySqlCommand dbCmd = new MySqlCommand(qry, _cnx);
-            MySqlDataReader dataReader = dbCmd.ExecuteReader();
-
             Dictionary<string, string> result = new Dictionary<string, string>();
 
-            if (!dataReader.HasRows)
+            using (MySqlDataReader dataReader = dbCmd.ExecuteReader())
             {
-                dataReader.Close();
-                _cnx.Close();
-                return new NotFoundObjectResult($"{sku} was not found in Magento");
+
+                if (!dataReader.HasRows)
+                {
+                    _cnx.Close();
+                    res = new NotFoundObjectResult($"{sku} was not found in Magento");
+                }
+                else
+                {
+                    while (dataReader.Read())
+                    {
+                        result.Add("name", dataReader.GetString(0));
+                        result.Add("sku", dataReader.GetString(1));
+                        result.Add("price", dataReader.GetString(2));
+                        result.Add("description", dataReader.GetString(3));
+                        result.Add("upc", dataReader.GetString(4));
+                    }
+                }
             }
 
-            while (dataReader.Read())
-            {
-                result.Add("name", dataReader.GetString(0));
-                result.Add("sku", dataReader.GetString(1));
-                result.Add("price", dataReader.GetString(2));
-                result.Add("description", dataReader.GetString(3));
-                result.Add("upc", dataReader.GetString(4));
-            }
-
-            dataReader.Close();
             _cnx.Close();
-            return new OkObjectResult(result);
+            res = new OkObjectResult(result);
+            return res;
         }
     }
 }
