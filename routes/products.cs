@@ -25,19 +25,6 @@ namespace magestack.routes
             string sku,
             ILogger log)
         {
-            log.LogInformation("Opening connection to database");
-
-            try
-            {
-                _cnx.Open();
-            }
-            catch (Exception e)
-            {
-                log.LogInformation("There was an error connection to the database");
-                log.LogError(e.ToString());
-                return new InternalServerErrorResult();
-            }
-
             log.LogInformation($"Searching for {sku} in the database");
 
             string qry = $@"SELECT v1.value AS 'name',
@@ -109,7 +96,6 @@ namespace magestack.routes
             }
 
             dataReader.Close();
-            _cnx.Close();
             return new OkObjectResult(result);
         }
     }
