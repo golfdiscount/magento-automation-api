@@ -57,7 +57,8 @@ namespace magestack
                 Port = uint.Parse(Environment.GetEnvironmentVariable("bound_port")),
                 UserID = dbUser.Value,
                 Password = dbPass.Value,
-                Database = "golfdi_mage2"
+                Database = "golfdi_mage2",
+                Pooling = true
             };
 
             MySqlConnection db = new MySqlConnection(cnxString.ConnectionString);
