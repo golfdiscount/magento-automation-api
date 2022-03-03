@@ -26,6 +26,7 @@ namespace magestack.routes
             ILogger log)
         {
             log.LogInformation($"Searching for {sku} in the database");
+            _cnx.Open();
 
             string qry = $@"SELECT v1.value AS 'name',
                 e.sku,
@@ -83,6 +84,7 @@ namespace magestack.routes
             if (!dataReader.HasRows)
             {
                 dataReader.Close();
+                _cnx.Close();
                 return new NotFoundObjectResult($"{sku} was not found in Magento");
             }
 
@@ -96,6 +98,7 @@ namespace magestack.routes
             }
 
             dataReader.Close();
+            _cnx.Close();
             return new OkObjectResult(result);
         }
     }

@@ -62,7 +62,6 @@ namespace magestack
             };
 
             MySqlConnection db = new MySqlConnection(cnxString.ConnectionString);
-
             return db;
         }
 
