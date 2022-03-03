@@ -25,14 +25,14 @@ namespace magestack
             Uri keyvaultUri = new Uri("https://magestack.vault.azure.net/");
             SecretClient secretClient = new SecretClient(keyvaultUri, creds);
 
-            MySqlConnection db = ConnectDb(secretClient);
+            string cs = ConnectDb(secretClient);
             SftpClient sftp = ConnectSftp(secretClient);
 
-            builder.Services.AddSingleton(db);
+            builder.Services.AddSingleton(cs);
             builder.Services.AddSingleton(sftp);
         }
 
-        private MySqlConnection ConnectDb(SecretClient secretClient)
+        private String ConnectDb(SecretClient secretClient)
         {
             KeyVaultSecret dbHost = secretClient.GetSecret("db-host");
             KeyVaultSecret dbUser = secretClient.GetSecret("db-user");
@@ -61,8 +61,7 @@ namespace magestack
                 Pooling = true
             };
 
-            MySqlConnection db = new MySqlConnection(cnxString.ConnectionString);
-            return db;
+            return cnxString.ToString();
         }
 
         private SftpClient ConnectSftp(SecretClient secretClient)
