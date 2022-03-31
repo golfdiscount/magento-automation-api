@@ -32,7 +32,8 @@ namespace magestack.routes
                 e.sku,
                 FORMAT(d1.value, 2) AS 'price',
                 t1.value AS 'short_description',
-                v2.value AS 'upc'
+                v2.value AS 'upc',
+                FORMAT(inv.qty, 0) AS 'qty'
             FROM catalog_product_entity e
             LEFT JOIN catalog_product_entity_varchar v1 ON e.entity_id = v1.entity_id
             AND v1.store_id = 0
@@ -74,6 +75,7 @@ namespace magestack.routes
 			            SELECT entity_type_id
 			            FROM eav_entity_type
 			            WHERE entity_type_code = 'catalog_product'))
+            LEFT JOIN cataloginventory_stock_item AS inv ON e.entity_id = inv.product_id
             WHERE e.sku = '{sku}';";
 
             MySqlCommand dbCmd = new MySqlCommand(qry, _cnx);
@@ -95,6 +97,7 @@ namespace magestack.routes
                 result.Add("price", dataReader.GetString(2));
                 result.Add("description", dataReader.GetString(3));
                 result.Add("upc", dataReader.GetString(4));
+                result.Add("quantity", dataReader.GetString(5));
             }
 
             dataReader.Close();
