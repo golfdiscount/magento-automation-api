@@ -95,7 +95,14 @@ namespace magestack.routes
                             result.Add("sku", reader.GetString(1));
                             result.Add("price", reader.GetString(2));
                             result.Add("description", reader.GetString(3));
-                            result.Add("upc", reader.GetString(4));
+                            try
+                            {
+                                result.Add("upc", reader.GetString(4));
+                            } catch
+                            {
+                                result.Add("upc", null);
+                            }
+                            
                             result.Add("quantity", reader.GetString(5));
                         }
                     }
