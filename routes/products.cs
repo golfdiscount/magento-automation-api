@@ -91,12 +91,12 @@ namespace magestack.routes
                     {
                         while (reader.Read())
                         {
-                            result.Add("name", getOrdinalValue(reader, 0));
-                            result.Add("sku", getOrdinalValue(reader, 1));
-                            result.Add("price", getOrdinalValue(reader, 2));
-                            result.Add("description", getOrdinalValue(reader, 3));
-                            result.Add("upc", getOrdinalValue(reader, 4));
-                            result.Add("quantity", getOrdinalValue(reader, 5));
+                            result.Add("name", GetOrdinalValue(reader, 0));
+                            result.Add("sku", GetOrdinalValue(reader, 1));
+                            result.Add("price", GetOrdinalValue(reader, 2));
+                            result.Add("description", GetOrdinalValue(reader, 3));
+                            result.Add("upc", GetOrdinalValue(reader, 4));
+                            result.Add("quantity", GetOrdinalValue(reader, 5));
                         }
                     }
                 }
@@ -106,7 +106,7 @@ namespace magestack.routes
             return res;
         }
 
-        private string getOrdinalValue(MySqlDataReader reader, int ordinal)
+        private string GetOrdinalValue(MySqlDataReader reader, int ordinal)
         {
             return reader.IsDBNull(ordinal) ? string.Empty : reader.GetString(ordinal);
         }
