@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using Renci.SshNet;
 using System;
+using System.Diagnostics;
 
 [assembly: FunctionsStartup(typeof(magestack.Startup))]
 
@@ -32,7 +33,7 @@ namespace magestack
             builder.Services.AddSingleton(sftp);
         }
 
-        private String ConnectDb(SecretClient secretClient)
+        private string ConnectDb(SecretClient secretClient)
         {
             KeyVaultSecret dbHost = secretClient.GetSecret("db-host");
             KeyVaultSecret dbUser = secretClient.GetSecret("db-user");
@@ -66,30 +67,53 @@ namespace magestack
 
         private SftpClient ConnectSftp(SecretClient secretClient)
         {
-            KeyVaultSecret stackHost = secretClient.GetSecret("stack-host");
-            KeyVaultSecret stackPort = secretClient.GetSecret("stack-port");
-            KeyVaultSecret stackUser = secretClient.GetSecret("stack-user");
-            KeyVaultSecret stackPass = secretClient.GetSecret("stack-pass");
+            if (Debugger.IsAttached)
+            {
+                string stackHost = Environment.GetEnvironmentVariable("stack-host");
+                string stackPort = Environment.GetEnvironmentVariable("stack-port");
+                string stackUser = Environment.GetEnvironmentVariable("stack-user");
+                string stackPass = Environment.GetEnvironmentVariable("stack-pass");
 
-            SftpClient sftp = new SftpClient(stackHost.Value,
-                int.Parse(stackPort.Value),
-                stackUser.Value,
-                stackPass.Value);
+                return new SftpClient(stackHost, int.Parse(stackPort), stackUser, stackPass);
+            } else
+            {
+                KeyVaultSecret stackHost = secretClient.GetSecret("stack-host");
+                KeyVaultSecret stackPort = secretClient.GetSecret("stack-port");
+                KeyVaultSecret stackUser = secretClient.GetSecret("stack-user");
+                KeyVaultSecret stackPass = secretClient.GetSecret("stack-pass");
 
-            return sftp;
+                return new SftpClient(stackHost.Value,
+                    int.Parse(stackPort.Value),
+                    stackUser.Value,
+                    stackPass.Value);
+            }
         }
 
         private SshClient ConnectSsh(SecretClient secretClient)
         {
-            KeyVaultSecret stackHost = secretClient.GetSecret("stack-host");
-            KeyVaultSecret stackPort = secretClient.GetSecret("stack-port");
-            KeyVaultSecret stackUser = secretClient.GetSecret("stack-user");
-            KeyVaultSecret stackPass = secretClient.GetSecret("stack-pass");
-            
-            return new SshClient(stackHost.Value, int.Parse(stackPort.Value), stackUser.Value, stackPass.Value)
+            if (Debugger.IsAttached)
             {
-                KeepAliveInterval = new TimeSpan(0, 1, 0)
-            };
+                string stackHost = Environment.GetEnvironmentVariable("stack-host");
+                string stackPort = Environment.GetEnvironmentVariable("stack-port");
+                string stackUser = Environment.GetEnvironmentVariable("stack-user");
+                string stackPass = Environment.GetEnvironmentVariable("stack-pass");
+
+                return new SshClient(stackHost, int.Parse(stackPort), stackUser, stackPass)
+                {
+                    KeepAliveInterval = new TimeSpan(0, 1, 0)
+                };
+            } else
+            {
+                KeyVaultSecret stackHost = secretClient.GetSecret("stack-host");
+                KeyVaultSecret stackPort = secretClient.GetSecret("stack-port");
+                KeyVaultSecret stackUser = secretClient.GetSecret("stack-user");
+                KeyVaultSecret stackPass = secretClient.GetSecret("stack-pass");
+
+                return new SshClient(stackHost.Value, int.Parse(stackPort.Value), stackUser.Value, stackPass.Value)
+                {
+                    KeepAliveInterval = new TimeSpan(0, 1, 0)
+                };
+            }
         }
     }
 }
