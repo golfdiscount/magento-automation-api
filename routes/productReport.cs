@@ -1,18 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System;
-using System.IO;
 
 namespace magestack.routes
 {
     public class productReport
     {
-        private readonly String _cs;
-        private readonly string path = @"export\productReport.csv";
+        private readonly string _cs;
 
         public productReport(String cs)
         {
@@ -62,7 +61,12 @@ namespace magestack.routes
                     }
                 }
 
-                File.WriteAllText(path, results);
+                BlobClient file = new BlobClient(
+                    Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
+                    "export",
+                    "productReport");
+
+                file.Upload(new BinaryData(results), true);
 
                 res = new ObjectResult(results);
             }
