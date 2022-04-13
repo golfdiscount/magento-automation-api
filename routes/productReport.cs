@@ -1,8 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System;
@@ -19,12 +17,11 @@ namespace magestack.routes
         }
 
         [FunctionName("GenerateExceptionReport")]
-        public ActionResult Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "exceptions")] HttpRequest req,
+        public void Run(
+            [TimerTrigger("0 * * * *")]TimerInfo myTimer,
             ILogger log)
         {
             log.LogInformation("Generating exception report from Magento...");
-            ActionResult res;
 
             using (MySqlConnection cxn = new MySqlConnection(_cs))
             using (MySqlCommand cmd = cxn.CreateCommand())
@@ -32,7 +29,7 @@ namespace magestack.routes
                 string results = "";
                 cxn.Open();
                 cmd.CommandText = $@"SELECT product.sku,
-	                FORMAT(inventory.qty, 0) AS 'quantity',
+	                REPLACE(FORMAT(inventory.qty, 0), ',', '') AS 'quantity',
                     reservation.reserved
                     FROM catalog_product_entity AS product
                 JOIN cataloginventory_stock_status AS inventory ON inventory.product_id = product.entity_id
@@ -47,17 +44,11 @@ namespace magestack.routes
 
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
-                    if (!reader.HasRows)
+                    while (reader.Read())
                     {
-                        res = new BadRequestObjectResult("Exception report could not be generated");
-                    } else
-                    {
-                        while (reader.Read())
-                        {
-                            results += reader.GetString(0) + ", ";
-                            results += reader.GetString(1) + ", ";
-                            results += reader.GetString(2) + "\n";
-                        }
+                        results += reader.GetString(0) + ", ";
+                        results += reader.GetString(1) + ", ";
+                        results += reader.GetString(2) + "\n";
                     }
                 }
 
@@ -67,11 +58,7 @@ namespace magestack.routes
                     "productReport");
 
                 file.Upload(new BinaryData(results), true);
-
-                res = new ObjectResult(results);
             }
-
-            return res;
         }
     }
 }
