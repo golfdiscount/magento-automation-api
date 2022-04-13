@@ -29,10 +29,8 @@ namespace magestack.routes
                 string results = "";
                 cxn.Open();
                 cmd.CommandText = $@"SELECT product.sku,
-	                REPLACE(FORMAT(inventory.qty, 0), ',', '') AS 'quantity',
                     reservation.reserved
                     FROM catalog_product_entity AS product
-                JOIN cataloginventory_stock_status AS inventory ON inventory.product_id = product.entity_id
                 RIGHT JOIN(
                     SELECT product.sku,
                         SUM(FORMAT(reservation.quantity, 0) *-1) AS 'reserved'
@@ -47,8 +45,7 @@ namespace magestack.routes
                     while (reader.Read())
                     {
                         results += reader.GetString(0) + ", ";
-                        results += reader.GetString(1) + ", ";
-                        results += reader.GetString(2) + "\n";
+                        results += reader.GetString(1) + "\n";
                     }
                 }
 
