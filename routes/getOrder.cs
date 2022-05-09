@@ -18,7 +18,7 @@ namespace magestack.routes
             _cs = cs;
         }
 
-        [FunctionName("getOrder")]
+        [FunctionName("GetOrder")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "orders/{order_num}")] HttpRequest req,
             string order_num,
@@ -31,18 +31,20 @@ namespace magestack.routes
             using (MySqlCommand cmd = cxn.CreateCommand())
             {
                 cxn.Open();
-                cmd.CommandText = @$"SELECT entity_id AS 'id',
+                cmd.CommandText = @$"SELECT sales_order.entity_id AS 'id',
                     state,
                     `status`,
                     shipping_description AS 'shipping',
                     customer_id,
                     billing_address_id,
-                    FORMAT(base_grand_total, 2) AS 'total',
-                    FORMAT(base_shipping_amount, 2) AS 'ship_cost',
+                    FORMAT(sales_order.base_grand_total, 2) AS 'total',
+                    FORMAT(sales_order.base_shipping_amount, 2) AS 'ship_cost',
                     created_at,
                     updated_at,
-                    increment_id AS 'order_number'
+                    increment_id AS 'order_number',
+                    payment.method
                 FROM sales_order
+                JOIN sales_order_payment AS payment ON payment.parent_id = sales_order.entity_id
                 WHERE increment_id = '{order_num}';";
 
                 using MySqlDataReader reader = cmd.ExecuteReader();
@@ -67,6 +69,7 @@ namespace magestack.routes
                         result.Add("created_at", GetOrdinalValue(reader, 8));
                         result.Add("updated_at", GetOrdinalValue(reader, 9));
                         result.Add("order_number", GetOrdinalValue(reader, 10));
+                        result.Add("payment_method", GetOrdinalValue(reader, 11));
                     }
 
                     res = new OkObjectResult(result);
