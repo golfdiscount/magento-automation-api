@@ -13,6 +13,7 @@ namespace magestack.routes
     public class UploadEagleOrder
     {
         private readonly SftpClient _sftp;
+        private const string rootDirectory = "/microcloud/domains/golfdi/domains/golfdiscount.com/http";
         public UploadEagleOrder(SftpClient sftp)
         {
             _sftp = sftp;
@@ -24,7 +25,12 @@ namespace magestack.routes
             string filename, ILogger log)
         {
             _sftp.Connect();
-            _sftp.ChangeDirectory(Environment.GetEnvironmentVariable("eagle_files"));
+
+            if (_sftp.WorkingDirectory != $"{rootDirectory}/{Environment.GetEnvironmentVariable("eagle_files")}")
+            {
+                _sftp.ChangeDirectory(Environment.GetEnvironmentVariable("eagle_files"));
+            }
+
             log.LogInformation($"Uploading {filename} to {_sftp.WorkingDirectory}");
 
             using (Stream reqContents = req.Body)
