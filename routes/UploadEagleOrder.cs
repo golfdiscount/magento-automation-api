@@ -24,8 +24,11 @@ namespace magestack.routes
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "eagle/{filename}")] HttpRequest req,
             string filename, ILogger log)
         {
-            _sftp.Connect();
-
+            if (!_sftp.IsConnected)
+            {
+                _sftp.Connect();
+            }
+            
             if (_sftp.WorkingDirectory != $"{rootDirectory}/{Environment.GetEnvironmentVariable("eagle_files")}")
             {
                 _sftp.ChangeDirectory(Environment.GetEnvironmentVariable("eagle_files"));
