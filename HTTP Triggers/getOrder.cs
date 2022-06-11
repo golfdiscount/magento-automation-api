@@ -5,21 +5,20 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace magestack.routes
 {
-    public class getOrder
+    public class GetOrder
     {
         private readonly string _cs;
 
-        public getOrder(string cs)
+        public GetOrder(string cs)
         {
             _cs = cs;
         }
 
         [FunctionName("GetOrder")]
-        public async Task<IActionResult> Run(
+        public IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "orders/{order_num}")] HttpRequest req,
             string order_num,
             ILogger log)

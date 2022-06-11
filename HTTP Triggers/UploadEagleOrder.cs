@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Renci.SshNet;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace magestack.routes
 {
@@ -20,7 +19,7 @@ namespace magestack.routes
         }
 
         [FunctionName("UploadEagleOrder")]
-        public async Task<IActionResult> Run(
+        public IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "eagle/{filename}")] HttpRequest req,
             string filename, ILogger log)
         {

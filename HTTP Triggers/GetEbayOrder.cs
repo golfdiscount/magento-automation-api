@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace magestack.routes
 {
@@ -18,7 +17,7 @@ namespace magestack.routes
         }
 
         [FunctionName("GetEbayOrder")]
-        public async Task<IActionResult> Run(
+        public IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "ebay/orders/{orderId}")] HttpRequest req,
             string orderId,
             ILogger log)
