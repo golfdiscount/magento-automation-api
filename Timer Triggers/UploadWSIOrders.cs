@@ -1,7 +1,4 @@
 ﻿using Azure.Storage.Blobs;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Renci.SshNet;
@@ -15,22 +12,16 @@ namespace magestack
     /// <summary>
     /// An instance of a timer trigger to upload files to WSI
     /// </summary>
-    public class WsiTimer
+    public class UploadWsiOrders
     {
         private readonly SftpClient sftp;
 
-        public WsiTimer(SftpClient sftp)
+        public UploadWsiOrders(SftpClient sftp)
         {
             this.sftp = sftp;
         }
 
-        /// <summary>
-        /// Triggers a run of the WsiTimer timer trigger
-        /// </summary>
-        /// <param name="myTimer"> TimerInfo object with information about the current timer trigger </param>
-        /// <param name="log"> Logger object </param>
-        /// <returns></returns>
-        [FunctionName("triggerUploadOrders")]
+        [FunctionName("UploadWsiOrders")]
         [Singleton]
         public void Run(
             [TimerTrigger("45 15,03 * * *")]TimerInfo myTimer,
