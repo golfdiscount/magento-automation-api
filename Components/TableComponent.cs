@@ -23,10 +23,11 @@ namespace magestack.Components
                 column.Item().Table(table =>
                 {
                     table.ColumnsDefinition(columns =>
-                    {
-                        columns.RelativeColumn();
-                        columns.RelativeColumn();
-                        columns.RelativeColumn();
+                    {   
+                        for (int i = 0; i < data.Columns.Count; i++)
+                        {
+                            columns.RelativeColumn();
+                        }
                     });
 
                     table.Header(header =>
@@ -39,7 +40,7 @@ namespace magestack.Components
 
                         static IContainer CellStyle(IContainer container)
                         {
-                            return container.DefaultTextStyle(x => x.SemiBold()).PaddingVertical(5).BorderBottom(1).BorderColor(Colors.Black);
+                            return container.DefaultTextStyle(x => x.SemiBold()).PaddingVertical(5).BorderBottom(1).BorderColor(Colors.Black).PaddingHorizontal(10);
                         }
                     });
 
@@ -50,10 +51,10 @@ namespace magestack.Components
                             if (column.DataType == typeof(DateTime))
                             {
                                 DateTime date = DateTime.Parse($"{row[column.ColumnName]}");
-                                table.Cell().Text(date.ToString("MM-dd-yyyy"));
+                                table.Cell().PaddingHorizontal(10).Text(date.ToString("MM-dd-yyyy"));
                             } else
                             {
-                                table.Cell().Text(row[column.ColumnName]);
+                                table.Cell().PaddingHorizontal(10).Text(row[column.ColumnName]);
                             }
                         }
                     }
