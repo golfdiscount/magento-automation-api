@@ -20,7 +20,7 @@ namespace magestack.Timer_Triggers
         }
 
         [FunctionName("GenerateReservationCsv")]
-        public void Run([TimerTrigger("0 * */3 * * *")]TimerInfo myTimer, ILogger log)
+        public void Run([TimerTrigger("0 0 */3 * * *")]TimerInfo myTimer, ILogger log)
         {
             using (MySqlConnection conn = new MySqlConnection(cs))
             using (MySqlCommand cmd = conn.CreateCommand())
