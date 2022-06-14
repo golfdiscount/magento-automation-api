@@ -83,7 +83,7 @@ namespace magestack.Timer_Triggers
                 sb.AppendLine();
             }
 
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://dufferscorner.com/dufferscorner.com/reservation.csv");
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://dufferscorner.com/dufferscorner.com/media/reservation.csv");
             request.Method = WebRequestMethods.Ftp.UploadFile;
 
             request.Credentials = new NetworkCredential(Environment.GetEnvironmentVariable("duffers_user"), 
