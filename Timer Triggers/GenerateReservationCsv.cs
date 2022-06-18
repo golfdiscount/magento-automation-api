@@ -19,7 +19,7 @@ namespace magestack.Timer_Triggers
             this.dataSet = new DataSet();
         }
 
-        [FunctionName("GenerateReservationCsv")]
+        [FunctionName("GenerateWsiReservationCsv")]
         public void Run([TimerTrigger("0 0 */3 * * *")]TimerInfo myTimer, ILogger log)
         {
             using (MySqlConnection conn = new MySqlConnection(cs))

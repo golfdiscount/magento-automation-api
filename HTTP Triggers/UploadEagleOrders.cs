@@ -9,16 +9,16 @@ using System.IO;
 
 namespace magestack.routes
 {
-    public class UploadEagleOrder
+    public class UploadEagleOrders
     {
         private readonly SftpClient _sftp;
         private const string rootDirectory = "/microcloud/domains/golfdi/domains/golfdiscount.com/http/";
-        public UploadEagleOrder(SftpClient sftp)
+        public UploadEagleOrders(SftpClient sftp)
         {
             _sftp = sftp;
         }
 
-        [FunctionName("UploadEagleOrder")]
+        [FunctionName("UploadEagleOrders")]
         public IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "eagle/{filename}")] HttpRequest req,
             string filename, ILogger log)

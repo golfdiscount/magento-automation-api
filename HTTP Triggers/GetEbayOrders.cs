@@ -8,15 +8,15 @@ using System.Collections.Generic;
 
 namespace magestack.routes
 {
-    public class GetEbayOrder
+    public class GetEbayOrders
     {
         private readonly string _cs;
-        public GetEbayOrder(string cs)
+        public GetEbayOrders(string cs)
         {
             _cs = cs;
         }
 
-        [FunctionName("GetEbayOrder")]
+        [FunctionName("GetEbayOrders")]
         public IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "ebay/orders/{orderId}")] HttpRequest req,
             string orderId,

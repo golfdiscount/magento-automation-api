@@ -8,16 +8,16 @@ using System.Collections.Generic;
 
 namespace magestack.routes
 {
-    public class GetOrder
+    public class GetMagentoOrders
     {
         private readonly string _cs;
 
-        public GetOrder(string cs)
+        public GetMagentoOrders(string cs)
         {
             _cs = cs;
         }
 
-        [FunctionName("GetOrder")]
+        [FunctionName("GetMagentoOrders")]
         public IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "orders/{order_num}")] HttpRequest req,
             string order_num,

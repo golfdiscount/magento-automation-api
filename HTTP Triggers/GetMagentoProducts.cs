@@ -9,15 +9,15 @@ using System.Collections.Generic;
 
 namespace magestack.routes
 {
-    public class Products
+    public class GetMagentoProducts
     {
         private readonly String _cs;
-        public Products(String cs)
+        public GetMagentoProducts(String cs)
         {
             _cs = cs;
         }
 
-        [FunctionName("GetProducts")]
+        [FunctionName("GetMagentoProducts")]
         public IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "products/{sku}")] HttpRequest req,
             string sku,
