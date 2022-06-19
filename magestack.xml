@@ -4,6 +4,49 @@
         <name>magestack</name>
     </assembly>
     <members>
+        <member name="T:magestack.routes.GetEbayOrders">
+            <summary>
+            HTTP trigger for getting an Ebay order from the Magento database
+            </summary>
+        </member>
+        <member name="M:magestack.routes.GetEbayOrders.#ctor(System.String)">
+            <summary>
+            Constructor for the GetEbayOrders HTTP trigger
+            </summary>
+            <param name="cs">
+            Connection string to the Magento MySQL database
+            </param>
+        </member>
+        <member name="M:magestack.routes.GetEbayOrders.Run(Microsoft.AspNetCore.Http.HttpRequest,System.String,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Entry point for running the GetEbayOrders HTTP trigger
+            </summary>
+            <param name="req">
+            HTTP request submitted to the functions runtime
+            </param>
+            <param name="orderId">
+            The Magento order ID related to the eBay order, typically starts with 500
+            </param>
+            <param name="log">
+            An instance of <c>ILogger</c> used for logging to the functions runtime
+            </param>
+            <returns>
+            An instance of <c>IActionResult</c> with an HTTP result like
+            <c>NotFoundObjectResult</c> or <c>OkObjectResult</c>
+            </returns>
+        </member>
+        <member name="M:magestack.routes.GetEbayOrders.GetOrdinalValue(MySql.Data.MySqlClient.MySqlDataReader,System.Int32)">
+            <summary>
+            Gets the value of a certain column ordinal (column number) in a <paramref name="reader"/>
+            </summary>
+            <param name="reader">
+            A data reader with the results of a MySQL query
+            </param>
+            <param name="ordinal">
+            Ordinal value of a column to get (0 gets the first column)
+            </param>
+            <returns></returns>
+        </member>
         <member name="T:magestack.Startup">
             <summary>
             Class representing startup behavior for Azure function environment
