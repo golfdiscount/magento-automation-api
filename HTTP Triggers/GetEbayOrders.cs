@@ -8,14 +8,40 @@ using System.Collections.Generic;
 
 namespace magestack.routes
 {
+    /// <summary>
+    /// HTTP trigger for getting an Ebay order from the Magento database
+    /// </summary>
     public class GetEbayOrders
     {
         private readonly string _cs;
+
+        /// <summary>
+        /// Constructor for the GetEbayOrders HTTP trigger
+        /// </summary>
+        /// <param name="cs">
+        /// Connection string to the Magento MySQL database
+        /// </param>
         public GetEbayOrders(string cs)
         {
             _cs = cs;
         }
 
+        /// <summary>
+        /// Entry point for running the GetEbayOrders HTTP trigger
+        /// </summary>
+        /// <param name="req">
+        /// HTTP request submitted to the functions runtime
+        /// </param>
+        /// <param name="orderId">
+        /// The Magento order ID related to the eBay order, typically starts with 500
+        /// </param>
+        /// <param name="log">
+        /// An instance of <c>ILogger</c> used for logging to the functions runtime
+        /// </param>
+        /// <returns>
+        /// An instance of <c>IActionResult</c> with an HTTP result like
+        /// <c>NotFoundObjectResult</c> or <c>OkObjectResult</c>
+        /// </returns>
         [FunctionName("GetEbayOrders")]
         public IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "ebay/orders/{orderId}")] HttpRequest req,
@@ -29,7 +55,7 @@ namespace magestack.routes
             using (MySqlCommand cmd = cxn.CreateCommand())
             {
                 cxn.Open();
-                cmd.CommandText = $@"SELECT sales_order.entity_id AS 'id',
+                cmd.CommandText = @"SELECT sales_order.entity_id AS 'id',
                     state,
                     `status`,
                     shipping_description AS 'shipping',
@@ -45,7 +71,9 @@ namespace magestack.routes
                 INNER JOIN m2epro_order ON magento_order_id = sales_order.entity_id
                 INNER JOIN m2epro_ebay_order ON order_id = m2epro_order.id
                 JOIN sales_order_payment AS payment ON payment.parent_id = sales_order.entity_id
-                WHERE ebay_order_id = '{orderId}';";
+                WHERE ebay_order_id = @ebay_order_id;";
+
+                cmd.Parameters.AddWithValue("@ebay_order_id", orderId);
 
                 using MySqlDataReader reader = cmd.ExecuteReader();
                 if (!reader.HasRows)
@@ -79,6 +107,16 @@ namespace magestack.routes
                 return res;
         }
 
+        /// <summary>
+        /// Gets the value of a certain column ordinal (column number) in a <paramref name="reader"/>
+        /// </summary>
+        /// <param name="reader">
+        /// A data reader with the results of a MySQL query
+        /// </param>
+        /// <param name="ordinal">
+        /// Ordinal value of a column to get (0 gets the first column)
+        /// </param>
+        /// <returns></returns>
         private string GetOrdinalValue(MySqlDataReader reader, int ordinal)
         {
             return reader.IsDBNull(ordinal) ? string.Empty : reader.GetString(ordinal);

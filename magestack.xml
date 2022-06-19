@@ -4,173 +4,6 @@
         <name>magestack</name>
     </assembly>
     <members>
-        <member name="T:Magento.MagentoDb">
-            <summary> Object representing access to the Magento database </summary>
-        </member>
-        <member name="M:Magento.MagentoDb.#ctor(System.String,System.UInt32,System.String,System.String)">
-            <summary> Instatiates a new connection to the Magento database </summary>
-            <param name="host"> Host name of the database </param>
-            <param name="port"> Port the database is hosted on </param>
-            <param name="user"> Username to access database</param>
-            <param name="pass"> Password to database user </param>
-        </member>
-        <member name="M:Magento.MagentoDb.Connect">
-            <summary> Opens a connection to the database </summary>
-        </member>
-        <member name="M:Magento.MagentoDb.Connect(MySql.Data.MySqlClient.MySqlBaseConnectionStringBuilder)">
-            <summary> Opens a connection to the database with a connection string </summary>
-            <param name="connString"><see cref="T:MySql.Data.MySqlClient.MySqlBaseConnectionStringBuilder"/> with connection string information </param>
-        </member>
-        <member name="M:Magento.MagentoDb.ExecuteDbCommand(System.String)">
-            <summary> Executes a command on the database </summary>
-            <param name="cmd">Command to be executed </param>
-            <returns><see cref="T:MySql.Data.MySqlClient.MySqlDataReader"/> with results from command execution </returns>
-        </member>
-        <member name="M:Magento.MagentoDb.Disconnect">
-            <summary> Disconnects from the database </summary>
-        </member>
-        <member name="T:Magento.Magestack">
-            <summary>
-            Connection to the magento server
-            </summary>
-        </member>
-        <member name="P:Magento.Magestack.Ssh">
-            <summary> Instance variable <c>Ssh</c> represents the SSH connection to the server </summary>
-        </member>
-        <member name="P:Magento.Magestack.Sftp">
-            <summary> Instance variable <c>Sftp</c> represents the SFTP connection to the server </summary>
-        </member>
-        <member name="P:Magento.Magestack.Db">
-            <summary> Instance variable <c>Db</c> represents the MySQL database connection </summary>
-        </member>
-        <member name="P:Magento.Magestack.Host">
-            <value> Host name to connect to </value>
-        </member>
-        <member name="P:Magento.Magestack.User">
-            <value> Username to the Magento stack </value>
-        </member>
-        <member name="P:Magento.Magestack.Pass">
-            <value> Password to <see cref="P:Magento.Magestack.User"/> </value>
-        </member>
-        <member name="P:Magento.Magestack.Port">
-            <value> Port that the server is running on </value>
-        </member>
-        <member name="M:Magento.Magestack.#ctor">
-            <summary> Instantiates a new connection the Magento stack </summary>
-        </member>
-        <member name="M:Magento.Magestack.Disconnect">
-            <summary> Disconnects from the Magento server </summary>
-        </member>
-        <member name="T:Magento.SftpClient">
-            <summary> SFTP client with basic functionalities like changing directories and grabbing files </summary>
-        </member>
-        <member name="M:Magento.SftpClient.#ctor(System.String,System.Int32,System.String,System.String)">
-            <summary> Instantiates an SFTP client on the Magento server </summary>
-            <param name="host">Host to connect to</param>
-            <param name="port">Port number to connect to</param>
-            <param name="user">SFTP username</param>
-            <param name="pass">SFTP password</param>
-        </member>
-        <member name="M:Magento.SftpClient.Connect">
-            <summary> Connects to the SFTP server </summary>
-        </member>
-        <member name="M:Magento.SftpClient.ChangeDir(System.String)">
-            <summary> Change the current working directory </summary>
-            <param name="dir">Name of directory to change to</param>
-            <exception cref="T:System.ArgumentException">The given directory name is not valid</exception>
-        </member>
-        <member name="M:Magento.SftpClient.List(System.Boolean,System.String)">
-            <summary> List out the files in the current directory </summary>
-            <param name="isDir">True if you want to include directories, false if not. Defaults to false.</param>
-            <param name="pattern">Regex pattern for file and directory matching. Defaults to no Regex pattern</param>
-            <returns>List of <c>SftpFile</c> objects found in the current working directory</returns>
-        </member>
-        <member name="M:Magento.SftpClient.ReadFile(Renci.SshNet.Sftp.SftpFile)">
-            <summary> Reads a file </summary>
-            <param name="file">File to be read</param>
-            <returns><c>byte[]</c> of file contents</returns>
-        </member>
-        <member name="M:Magento.SftpClient.TrackFile(System.String)">
-            <summary>
-            Adds a file to the file tracking queue by its name
-            </summary>
-            <param name="fileName">File name to be tracked</param>
-        </member>
-        <member name="M:Magento.SftpClient.Uploaded(System.String)">
-            <summary> Checks to see if a file has been uploaded </summary>
-            <param name="fileName"> File name to check</param>
-            <returns> <c>true</c> if file is in last 20 uploads, <c>false</c> if not </returns>
-        </member>
-        <member name="M:Magento.SftpClient.Disconnect">
-            <summary> Disconnects the SFTP client from the server </summary>
-        </member>
-        <member name="P:Magento.SftpClient.WorkingDirectory">
-            <summary> Gets the current working directory or <see cref="M:Magento.SftpClient.ChangeDir(System.String)"/> to the given directory </summary>
-        </member>
-        <member name="T:Magento.SshTunnel">
-            <summary> Object representing SSH access to Magento server </summary>
-        </member>
-        <member name="M:Magento.SshTunnel.#ctor(System.String,System.Int32,System.String,System.String)">
-            <summary> Inititates a new SSH session </summary>
-            <param name="host"> Host name of SSH server </param>
-            <param name="port"> Port SSH server is running on</param>
-            <param name="user"> User to log onto SSH server with </param>
-            <param name="pass"> Password to SSH user </param>
-        </member>
-        <member name="M:Magento.SshTunnel.Disconnect">
-            <summary> Disconnects from the SSH server </summary>
-        </member>
-        <member name="M:Magento.SshTunnel.ExecuteCommand(System.String)">
-            <summary> Executes a command on the SSH server </summary>
-            <param name="cmd"> SSH command to be executed </param>
-            <returns> A <see cref="T:System.String"/> with results of the command execution </returns>
-        </member>
-        <member name="M:Magento.SshTunnel.ForwardPort(System.String,System.UInt32,System.String,System.UInt32)">
-            <summary> Forwards a port on local machine to remote machine </summary>
-            <param name="boundHost"> Host name on local machine to bound connection to </param>
-            <param name="boundPort"> Port on local machine to bound connmection to </param>
-            <param name="remoteHost"> Host on SSH server to connect to </param>
-            <param name="remotePort"> Port on SSH server to connect to </param>
-        </member>
-        <member name="P:Magento.SshTunnel.WorkingDir">
-            <summary> The current working directory of the SSH session </summary>
-        </member>
-        <member name="T:magestack.WsiTimer">
-            <summary>
-            An instance of a timer trigger to upload files to WSI
-            </summary>
-        </member>
-        <member name="M:magestack.WsiTimer.Run(Microsoft.Azure.WebJobs.TimerInfo,Microsoft.Extensions.Logging.ILogger)">
-            <summary>
-            Triggers a run of the WsiTimer timer trigger
-            </summary>
-            <param name="myTimer"> TimerInfo object with information about the current timer trigger </param>
-            <param name="log"> Logger object </param>
-            <returns></returns>
-        </member>
-        <member name="T:magestack.WsiHttp">
-            <summary> Trigger object that uploads orders to WSI SFTP server </summary>
-        </member>
-        <member name="M:magestack.WsiHttp.#ctor(Magento.SftpClient)">
-            <summary> Initiates a trigger run to upload orders to WSI SFTP server </summary>
-            <param name="sftp">SFTP client connected to Magento server</param>
-        </member>
-        <member name="M:magestack.WsiHttp.Run(Microsoft.AspNetCore.Http.HttpRequest,Microsoft.Extensions.Logging.ILogger)">
-            <summary> Runs the trigger </summary>
-            <param name="req">Request to the HTTP endpoint</param>
-            <param name="log">Logging middleware</param>
-            <returns>HTTP response with results of uploading orders process</returns>
-        </member>
-        <member name="M:magestack.WsiHttp.ConvertFiles(System.Collections.Generic.List{Renci.SshNet.Sftp.SftpFile},Microsoft.Extensions.Logging.ILogger)">
-            <summary> Takes a list of files of converts them to a singular byte array </summary>
-            <param name="files">List of file names to convert</param>
-            <param name="log">Logging middleware to output progress</param>
-            <returns><c>byte[]</c> associated with their file names</returns>
-        </member>
-        <member name="M:magestack.WsiHttp.UploadToStorage(System.Byte[])">
-            <summary> Takes file contents and uploads them to a blob at WSI storage </summary>
-            <param name="fileContent"><c>byte[]</c> of the file content</param>
-        </member>
         <member name="T:magestack.Startup">
             <summary>
             Class representing startup behavior for Azure function environment
@@ -181,6 +14,15 @@
             Configuration method for the Azure function environment
             </summary>
             <param name="builder">Function builder for dependency injection</param>
+        </member>
+        <member name="T:magestack.UploadWsiOrders">
+            <summary>
+            An instance of a timer trigger to upload files to WSI
+            </summary>
+        </member>
+        <member name="M:magestack.UploadWsiOrders.UploadToStorage(System.Byte[])">
+            <summary> Takes file contents and uploads them to a blob at WSI storage </summary>
+            <param name="fileContent"><c>byte[]</c> of the file content</param>
         </member>
     </members>
 </doc>
