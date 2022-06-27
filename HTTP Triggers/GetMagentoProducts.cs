@@ -19,7 +19,7 @@ namespace magestack.routes
 
         [FunctionName("GetMagentoProducts")]
         public IActionResult Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "products/{sku}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "products/{sku}")] HttpRequest req,
             string sku,
             ILogger log)
         {
