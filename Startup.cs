@@ -59,7 +59,8 @@ namespace magestack
                 UserID = dbUser.Value,
                 Password = dbPass.Value,
                 Database = "golfdi_mage2",
-                Pooling = true
+                Pooling = true,
+                MinimumPoolSize = 3
             };
 
             return cnxString.ToString();
