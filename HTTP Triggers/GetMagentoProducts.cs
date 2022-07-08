@@ -50,8 +50,7 @@ namespace magestack.routes
                     e.sku,
                     FORMAT(d1.value, 2) AS 'price',
                     t1.value AS 'short_description',
-                    v2.value AS 'upc',
-                    FORMAT(inv.qty, 0) AS 'qty'
+                    v2.value AS 'upc'
                 FROM catalog_product_entity e
                 LEFT JOIN catalog_product_entity_varchar v1 ON e.entity_id = v1.entity_id
                 AND v1.store_id = 0
@@ -93,7 +92,6 @@ namespace magestack.routes
 			                SELECT entity_type_id
 			                FROM eav_entity_type
 			                WHERE entity_type_code = 'catalog_product'))
-                LEFT JOIN cataloginventory_stock_item AS inv ON e.entity_id = inv.product_id
                 WHERE e.sku = '{sku}';";
 
                 using MySqlDataReader reader = cmd.ExecuteReader();
@@ -104,7 +102,6 @@ namespace magestack.routes
                     product.price = reader.IsDBNull(2) ? 0 : reader.GetDecimal(2);
                     product.description = reader.IsDBNull(3) ? string.Empty : reader.GetString(3);
                     product.upc = reader.IsDBNull(4) ? string.Empty : reader.GetString(4);
-                    product.quantity = reader.IsDBNull(5) ? 0 : reader.GetInt16(5);
 
                     log.LogInformation($"Queueing {sku} to be cached");
                     QueueProduct(product);
