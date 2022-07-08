@@ -31,6 +31,11 @@ namespace magestack
 
             builder.Services.AddSingleton(cs);
             builder.Services.AddSingleton(sftp);
+
+            builder.Services.AddDistributedRedisCache(config =>
+            {
+                config.Configuration = Environment.GetEnvironmentVariable("cache");
+            });
         }
 
         private string ConnectDb(SecretClient secretClient)
