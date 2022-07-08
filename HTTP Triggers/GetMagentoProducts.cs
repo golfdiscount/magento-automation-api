@@ -1,20 +1,26 @@
+using Azure.Storage.Queues;
+using magestack.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
+using System.Text;
+using System.Text.Json;
 
 namespace magestack.routes
 {
     public class GetMagentoProducts
     {
-        private readonly String _cs;
-        public GetMagentoProducts(String cs)
+        private readonly string _cs;
+        private readonly IDistributedCache cache;
+        public GetMagentoProducts(string cs, IDistributedCache cache)
         {
             _cs = cs;
+            this.cache = cache;
         }
 
         [FunctionName("GetMagentoProducts")]
@@ -23,8 +29,18 @@ namespace magestack.routes
             string sku,
             ILogger log)
         {
-            IActionResult res;
-            log.LogInformation($"Searching for {sku} in the database");
+            Product product = new Product();
+            log.LogInformation($"Searching for {sku} in Redis cache");
+
+            string productInfo = cache.GetString(sku);
+
+            if (productInfo != null)
+            {
+                log.LogInformation($"Found {sku} in Redis cache");
+                return new JsonResult(JsonSerializer.Deserialize<Product>(productInfo));
+            }
+
+            log.LogWarning($"Unable to find {sku} in cache, searching in database");
 
             using (MySqlConnection cxn = new MySqlConnection(_cs))
             using (MySqlCommand cmd = cxn.CreateCommand())
@@ -80,35 +96,33 @@ namespace magestack.routes
                 LEFT JOIN cataloginventory_stock_item AS inv ON e.entity_id = inv.product_id
                 WHERE e.sku = '{sku}';";
 
-                Dictionary<string, string> result = new Dictionary<string, string>();
-
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                using MySqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
                 {
-                    if (!reader.HasRows)
-                    {
-                        res = new NotFoundObjectResult($"{sku} was not found in Magento");
-                    } else
-                    {
-                        while (reader.Read())
-                        {
-                            result.Add("name", GetOrdinalValue(reader, 0));
-                            result.Add("sku", GetOrdinalValue(reader, 1));
-                            result.Add("price", GetOrdinalValue(reader, 2));
-                            result.Add("description", GetOrdinalValue(reader, 3));
-                            result.Add("upc", GetOrdinalValue(reader, 4));
-                            result.Add("quantity", GetOrdinalValue(reader, 5));
-                        }
-                    }
+                    product.name = reader.IsDBNull(0) ? string.Empty : reader.GetString(0);
+                    product.sku = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
+                    product.price = reader.IsDBNull(2) ? 0 : reader.GetDecimal(2);
+                    product.description = reader.IsDBNull(3) ? string.Empty : reader.GetString(3);
+                    product.upc = reader.IsDBNull(4) ? string.Empty : reader.GetString(4);
+                    product.quantity = reader.IsDBNull(5) ? 0 : reader.GetInt16(5);
+
+                    log.LogInformation($"Queueing {sku} to be cached");
+                    QueueProduct(product);
+
+                    return new OkObjectResult(product);
                 }
-                res = new OkObjectResult(result);
             }
-            
-            return res;
+
+            log.LogWarning($"Unable to find {sku} in database");
+            return new NotFoundObjectResult($"{sku} was not found in Magento"); ;
         }
 
-        private string GetOrdinalValue(MySqlDataReader reader, int ordinal)
+        private void QueueProduct(Product product)
         {
-            return reader.IsDBNull(ordinal) ? string.Empty : reader.GetString(ordinal);
+            string productInfo = JsonSerializer.Serialize(product);
+            productInfo = Convert.ToBase64String(Encoding.UTF8.GetBytes(productInfo));
+            QueueClient client = new QueueClient("DefaultEndpointsProtocol=https;AccountName=magestacktest;AccountKey=VHCa9lG/uNc5h36bQNDmCVrngQ2WP7PP7yuaQhIaSIgl3TNEefpxFVNA8K/9mMt2ZwV8cT/pDVBbhk7SPn6/7g==;BlobEndpoint=https://magestacktest.blob.core.windows.net/;QueueEndpoint=https://magestacktest.queue.core.windows.net/;TableEndpoint=https://magestacktest.table.core.windows.net/;FileEndpoint=https://magestacktest.file.core.windows.net/;", "cache-products");
+            client.SendMessage(productInfo);
         }
     }
 }
