@@ -42,11 +42,7 @@ namespace magestack.routes
 
             log.LogWarning($"Unable to find {sku} in cache, searching in database");
 
-            using (MySqlConnection cxn = new MySqlConnection(_cs))
-            using (MySqlCommand cmd = cxn.CreateCommand())
-            {
-                cxn.Open();
-                cmd.CommandText = $@"SELECT v1.value AS 'name',
+            string query = $@"SELECT v1.value AS 'name',
                     e.sku,
                     FORMAT(d1.value, 2) AS 'price',
                     t1.value AS 'short_description',
@@ -92,22 +88,22 @@ namespace magestack.routes
 			                SELECT entity_type_id
 			                FROM eav_entity_type
 			                WHERE entity_type_code = 'catalog_product'))
-                WHERE e.sku = '{sku}';";
+                WHERE e.sku = @sku;";
+            MySqlParameter[] parameters = {new MySqlParameter("sku", sku)};
+            MySqlDataReader reader = MySqlHelper.ExecuteReader(_cs, query, parameters);
 
-                using MySqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    product.name = reader.IsDBNull(0) ? string.Empty : reader.GetString(0);
-                    product.sku = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
-                    product.price = reader.IsDBNull(2) ? 0 : reader.GetDecimal(2);
-                    product.description = reader.IsDBNull(3) ? string.Empty : reader.GetString(3);
-                    product.upc = reader.IsDBNull(4) ? string.Empty : reader.GetString(4);
+            while (reader.Read())
+            {
+                product.name = reader.IsDBNull(0) ? string.Empty : reader.GetString(0);
+                product.sku = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
+                product.price = reader.IsDBNull(2) ? 0 : reader.GetDecimal(2);
+                product.description = reader.IsDBNull(3) ? string.Empty : reader.GetString(3);
+                product.upc = reader.IsDBNull(4) ? string.Empty : reader.GetString(4);
 
-                    log.LogInformation($"Queueing {sku} to be cached");
-                    QueueProduct(product);
+                log.LogInformation($"Queueing {sku} to be cached");
+                QueueProduct(product);
 
-                    return new OkObjectResult(product);
-                }
+                return new OkObjectResult(product);
             }
 
             log.LogWarning($"Unable to find {sku} in database");
