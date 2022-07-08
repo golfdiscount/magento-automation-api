@@ -114,7 +114,7 @@ namespace magestack.routes
         {
             string productInfo = JsonSerializer.Serialize(product);
             productInfo = Convert.ToBase64String(Encoding.UTF8.GetBytes(productInfo));
-            QueueClient client = new QueueClient("DefaultEndpointsProtocol=https;AccountName=magestacktest;AccountKey=VHCa9lG/uNc5h36bQNDmCVrngQ2WP7PP7yuaQhIaSIgl3TNEefpxFVNA8K/9mMt2ZwV8cT/pDVBbhk7SPn6/7g==;BlobEndpoint=https://magestacktest.blob.core.windows.net/;QueueEndpoint=https://magestacktest.queue.core.windows.net/;TableEndpoint=https://magestacktest.table.core.windows.net/;FileEndpoint=https://magestacktest.file.core.windows.net/;", "cache-products");
+            QueueClient client = new QueueClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), "cache-products");
             client.SendMessage(productInfo);
         }
     }
