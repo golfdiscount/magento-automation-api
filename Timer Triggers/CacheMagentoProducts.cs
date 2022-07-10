@@ -25,7 +25,7 @@ namespace magestack.Timer_Triggers
         }
 
         [FunctionName("CacheMagentoProducts")]
-        public void Run([TimerTrigger("0 30 * * * *")]TimerInfo myTimer, ILogger log)
+        public void Run([TimerTrigger("0 0,30 * * * *")]TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"Searching for Magento products in orders for the last 30 minutes");
 
