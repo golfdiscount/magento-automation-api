@@ -11,9 +11,9 @@ namespace magestack.routes
     /// <summary>
     /// HTTP trigger for getting an Ebay order from the Magento database
     /// </summary>
-    public class GetEbayOrders
+    public class GetEbayOrder
     {
-        private readonly string _cs;
+        private readonly string cs;
 
         /// <summary>
         /// Constructor for the GetEbayOrders HTTP trigger
@@ -21,9 +21,9 @@ namespace magestack.routes
         /// <param name="cs">
         /// Connection string to the Magento MySQL database
         /// </param>
-        public GetEbayOrders(string cs)
+        public GetEbayOrder(string cs)
         {
-            _cs = cs;
+            this.cs = cs;
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace magestack.routes
             IActionResult res;
             log.LogInformation($"Looking for an eBay order with eBay order ID: {orderId}");
 
-            using (MySqlConnection cxn = new MySqlConnection(_cs))
+            using (MySqlConnection cxn = new(cs))
             using (MySqlCommand cmd = cxn.CreateCommand())
             {
                 cxn.Open();
@@ -82,7 +82,7 @@ namespace magestack.routes
                 }
                 else
                 {
-                    Dictionary<string, string> result = new Dictionary<string, string>();
+                    Dictionary<string, string> result = new();
 
                     while (reader.Read())
                     {
@@ -117,7 +117,7 @@ namespace magestack.routes
         /// Ordinal value of a column to get (0 gets the first column)
         /// </param>
         /// <returns></returns>
-        private string GetOrdinalValue(MySqlDataReader reader, int ordinal)
+        private static string GetOrdinalValue(MySqlDataReader reader, int ordinal)
         {
             return reader.IsDBNull(ordinal) ? string.Empty : reader.GetString(ordinal);
         }
