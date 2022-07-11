@@ -25,7 +25,7 @@ namespace magestack.Timer_Triggers
         [FunctionName("GenerateAnalyticsReport")]
         public async Task Run([TimerTrigger("0 0 15 * * 1")]TimerInfo myTimer, ILogger log)
         {
-            using (MySqlConnection conn = new MySqlConnection(cs))
+            using (MySqlConnection conn = new(cs))
             {
                 string cmdText = @"SELECT DATE(created_at) AS `Date`,
                         COUNT(*) AS `Count`, 
@@ -141,7 +141,7 @@ namespace magestack.Timer_Triggers
                 FetchData(conn, cmdText, "Amazon Top 10 Products by $ Sold");
             }
 
-            AnalyticsDocument document = new AnalyticsDocument(dataSet);
+            AnalyticsDocument document = new(dataSet);
             byte[] documentbytes = document.GeneratePdf();
             string base64Doc = Convert.ToBase64String(documentbytes);
 
@@ -150,24 +150,22 @@ namespace magestack.Timer_Triggers
 
         public void FetchData(MySqlConnection conn, string cmdText, string name)
         {
-            using (MySqlCommand cmd = conn.CreateCommand())
-            {
-                conn.Open();
-                cmd.CommandText = cmdText;
+            using MySqlCommand cmd = conn.CreateCommand();
+            conn.Open();
+            cmd.CommandText = cmdText;
 
-                MySqlDataAdapter dataAdapter = new MySqlDataAdapter()
-                {
-                    SelectCommand = cmd
-                };
-                dataAdapter.Fill(dataSet, name);
-                conn.Close();
-            }
+            MySqlDataAdapter dataAdapter = new()
+            {
+                SelectCommand = cmd
+            };
+            dataAdapter.Fill(dataSet, name);
+            conn.Close();
         }
 
         public static async Task SendReport(string base64Doc)
         {
             string sgApiKey = Environment.GetEnvironmentVariable("sendgrid_api");
-            SendGridClient client = new SendGridClient(sgApiKey);
+            SendGridClient client = new(sgApiKey);
 
             DateTime today = DateTime.Today;
 
@@ -175,11 +173,11 @@ namespace magestack.Timer_Triggers
             string text = $"Report generated on {today:MM-dd-yyyy)}";
 
 
-            EmailAddress from = new EmailAddress("harmeet@golfdiscount.com");
+            EmailAddress from = new("harmeet@golfdiscount.com");
 
             string emailList = Environment.GetEnvironmentVariable("email_list");
             string[] emails = emailList.Split(',');
-            List<EmailAddress> recipients = new List<EmailAddress>();
+            List<EmailAddress> recipients = new();
 
             foreach (string email in emails)
             {

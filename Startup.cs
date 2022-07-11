@@ -22,15 +22,16 @@ namespace magestack
         /// <param name="builder">Function builder for dependency injection</param>
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            DefaultAzureCredential creds = new DefaultAzureCredential();
-            Uri keyvaultUri = new Uri("https://magestack.vault.azure.net/");
-            SecretClient secretClient = new SecretClient(keyvaultUri, creds);
+            DefaultAzureCredential creds = new();
+            Uri keyvaultUri = new("https://magestack.vault.azure.net/");
+            SecretClient secretClient = new(keyvaultUri, creds);
 
             string cs = ConnectDb(secretClient);
             SftpClient sftp = ConnectSftp(secretClient);
 
             builder.Services.AddSingleton(cs);
             builder.Services.AddSingleton(sftp);
+            builder.Services.AddHttpClient();
 
             builder.Services.AddDistributedRedisCache(config =>
             {
@@ -38,7 +39,7 @@ namespace magestack
             });
         }
 
-        private string ConnectDb(SecretClient secretClient)
+        private static string ConnectDb(SecretClient secretClient)
         {
             KeyVaultSecret dbHost = secretClient.GetSecret("db-host");
             KeyVaultSecret dbUser = secretClient.GetSecret("db-user");
@@ -50,14 +51,14 @@ namespace magestack
 
             // Bind dbHost:dbPort to 127.0.0.1:bound_port
             // Helps tunnel for MySQL connection
-            ForwardedPortLocal forwardedPort = new ForwardedPortLocal("127.0.0.1",
+            ForwardedPortLocal forwardedPort = new("127.0.0.1",
                 uint.Parse(Environment.GetEnvironmentVariable("bound_port")),
                 dbHost.Value,
                 uint.Parse(dbPort.Value));
             ssh.AddForwardedPort(forwardedPort);
             forwardedPort.Start();
 
-            MySqlConnectionStringBuilder cnxString = new MySqlConnectionStringBuilder
+            MySqlConnectionStringBuilder cnxString = new()
             {
                 Server = "127.0.0.1",
                 Port = uint.Parse(Environment.GetEnvironmentVariable("bound_port")),
@@ -71,7 +72,7 @@ namespace magestack
             return cnxString.ToString();
         }
 
-        private SftpClient ConnectSftp(SecretClient secretClient)
+        private static SftpClient ConnectSftp(SecretClient secretClient)
         {
             if (Debugger.IsAttached)
             {
@@ -95,7 +96,7 @@ namespace magestack
             }
         }
 
-        private SshClient ConnectSsh(SecretClient secretClient)
+        private static SshClient ConnectSsh(SecretClient secretClient)
         {
             if (Debugger.IsAttached)
             {

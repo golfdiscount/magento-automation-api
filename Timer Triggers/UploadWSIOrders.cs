@@ -35,11 +35,11 @@ namespace magestack
             if (sftp.WorkingDirectory != EXPORT_PATH) sftp.ChangeDirectory("var/export/mmexportcsv");
 
             IEnumerable<SftpFile> files = sftp.ListDirectory(sftp.WorkingDirectory);
-            List<SftpFile> wsiFiles = new List<SftpFile>();
+            List<SftpFile> wsiFiles = new();
 
             foreach (SftpFile file in files)
             {
-                Regex rgx = new Regex($"PT_WSI_{string.Format("{0:MM_dd_yyy}", DateTime.Today)}");
+                Regex rgx = new($"PT_WSI_{string.Format("{0:MM_dd_yyy}", DateTime.Today)}");
 
                 if (rgx.IsMatch(file.Name) && !file.IsDirectory)
                 {
@@ -51,7 +51,7 @@ namespace magestack
             {
                 log.LogInformation($"Found {wsiFiles.Count} WSI file(s) for {string.Format("{0:MM/dd/yyy}", DateTime.Today)}");
                 log.LogInformation("Joining files");
-                List<byte> fileBytes = new List<byte>();
+                List<byte> fileBytes = new();
 
                 foreach (SftpFile file in wsiFiles)
                 {
@@ -74,10 +74,10 @@ namespace magestack
 
         /// <summary> Takes file contents and uploads them to a blob at WSI storage </summary>
         /// <param name="fileContent"><c>byte[]</c> of the file content</param>
-        private void UploadToStorage(byte[] fileContent)
+        private static void UploadToStorage(byte[] fileContent)
         {
             string fileName = Guid.NewGuid().ToString();
-            BlobClient file = new BlobClient(Environment.GetEnvironmentVariable("wsi_storage"),
+            BlobClient file = new(Environment.GetEnvironmentVariable("wsi_storage"),
                 "wsi-orders",
                 fileName);
             file.Upload(new BinaryData(fileContent));
