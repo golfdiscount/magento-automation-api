@@ -41,8 +41,11 @@ namespace magestack
 
             builder.Services.AddAzureClients(clientBuilder =>
             {
-                Uri vaultUri = new(Environment.GetEnvironmentVariable("vault-uri"));
-                clientBuilder.AddSecretClient(vaultUri);
+                clientBuilder.UseCredential(new DefaultAzureCredential());
+                clientBuilder.AddSecretClient(keyvaultUri);
+
+                KeyVaultSecret wsiStorageUri = secretClient.GetSecret("wsi-storage-uri");
+                clientBuilder.AddBlobServiceClient(wsiStorageUri.Value).WithName("wsi-storage");
             });
         }
 
