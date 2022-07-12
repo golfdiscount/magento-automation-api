@@ -1,10 +1,14 @@
+using Azure.Security.KeyVault.Secrets;
+using FluentFTP;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
+using Renci.SshNet;
 using System;
 using System.Data;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 
 namespace magestack.Timer_Triggers
@@ -13,10 +17,15 @@ namespace magestack.Timer_Triggers
     {
         private readonly string cs;
         private readonly DataSet dataSet;
-        public GenerateReservationCsv(string cs)
+        private readonly IHttpClientFactory httpClientFactory;
+        private readonly SecretClient secretClient;
+        
+        public GenerateReservationCsv(string cs, IHttpClientFactory httpClientFactory, SecretClient secretClient)
         {
             this.cs = cs;
             dataSet = new DataSet();
+            this.httpClientFactory = httpClientFactory;
+            this.secretClient = secretClient;
         }
 
         [FunctionName("GenerateWsiReservationCsv")]
@@ -74,7 +83,7 @@ namespace magestack.Timer_Triggers
                 for (int i = 0; i < reservations.Columns.Count; i++)
                 {
                     sb.Append(row[i].ToString());
-                    if (i < reservations.Columns.Count -  1)
+                    if (i < reservations.Columns.Count - 1)
                     {
                         sb.Append(',');
                     }
@@ -83,14 +92,15 @@ namespace magestack.Timer_Triggers
                 sb.AppendLine();
             }
 
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://dufferscorner.com/dufferscorner.com/media/reservation.csv");
-            request.Method = WebRequestMethods.Ftp.UploadFile;
+            KeyVaultSecret host = secretClient.GetSecret("duffers-host");
+            KeyVaultSecret user = secretClient.GetSecret("duffers-user");
+            KeyVaultSecret pass = secretClient.GetSecret("duffers-pass");
 
-            request.Credentials = new NetworkCredential(Environment.GetEnvironmentVariable("duffers_user"), 
-                Environment.GetEnvironmentVariable("duffers_pass"));
+            FtpClient ftp = new(host.Value, user.Value, pass.Value);
+            ftp.Connect();
 
-            using Stream requestStream = request.GetRequestStream();
-            requestStream.Write(Encoding.UTF8.GetBytes(sb.ToString()));
+            byte[] fileContent = Encoding.UTF8.GetBytes(sb.ToString());
+            ftp.Upload(fileContent, "dufferscorner.com/media/reservation.csv");
         }
     }
 }
