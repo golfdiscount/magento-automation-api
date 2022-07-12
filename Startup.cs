@@ -46,6 +46,8 @@ namespace magestack
 
                 KeyVaultSecret wsiStorageUri = secretClient.GetSecret("wsi-storage-uri");
                 clientBuilder.AddBlobServiceClient(wsiStorageUri.Value).WithName("wsi-storage");
+
+                clientBuilder.AddQueueServiceClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
             });
         }
 
