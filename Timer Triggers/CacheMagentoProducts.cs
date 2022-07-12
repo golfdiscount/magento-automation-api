@@ -2,6 +2,7 @@ using Azure.Storage.Queues;
 using magestack.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
@@ -16,10 +17,12 @@ namespace magestack.Timer_Triggers
     {
         private readonly string cs;
         private readonly IDistributedCache cache;
-        public CacheMagentoProducts(string cs, IDistributedCache cache)
+		private readonly QueueClient productCacheQueue;
+        public CacheMagentoProducts(string cs, IDistributedCache cache, QueueServiceClient queueClient)
         {
             this.cs = cs;
             this.cache = cache;
+			productCacheQueue = queueClient.GetQueueClient("cache-products");
         }
 
         [FunctionName("CacheMagentoProducts")]
@@ -110,12 +113,11 @@ namespace magestack.Timer_Triggers
             };
 		}
 
-		private static void QueueProduct(Product product)
+		private void QueueProduct(Product product)
 		{
 			string productInfo = JsonSerializer.Serialize(product);
 			productInfo = Convert.ToBase64String(Encoding.UTF8.GetBytes(productInfo));
-			QueueClient client = new(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), "cache-products");
-			client.SendMessage(productInfo);
+			productCacheQueue.SendMessage(productInfo);
 		}
 	}
 }
