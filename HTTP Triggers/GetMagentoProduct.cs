@@ -13,13 +13,13 @@ using System.Text.Json;
 
 namespace magestack.routes
 {
-    public class GetMagentoProducts
+    public class GetMagentoProduct
     {
-        private readonly string _cs;
+        private readonly string cs;
         private readonly IDistributedCache cache;
-        public GetMagentoProducts(string cs, IDistributedCache cache)
+        public GetMagentoProduct(string cs, IDistributedCache cache)
         {
-            _cs = cs;
+            this.cs = cs;
             this.cache = cache;
         }
 
@@ -29,7 +29,7 @@ namespace magestack.routes
             string sku,
             ILogger log)
         {
-            Product product = new Product();
+            Product product = new();
             log.LogInformation($"Searching for {sku} in Redis cache");
 
             string productInfo = cache.GetString(sku);
@@ -90,7 +90,7 @@ namespace magestack.routes
 			                WHERE entity_type_code = 'catalog_product'))
                 WHERE e.sku = @sku;";
             MySqlParameter[] parameters = {new MySqlParameter("sku", sku)};
-            MySqlDataReader reader = MySqlHelper.ExecuteReader(_cs, query, parameters);
+            MySqlDataReader reader = MySqlHelper.ExecuteReader(cs, query, parameters);
 
             while (reader.Read())
             {
@@ -110,11 +110,11 @@ namespace magestack.routes
             return new NotFoundObjectResult($"{sku} was not found in Magento"); ;
         }
 
-        private void QueueProduct(Product product)
+        private static void QueueProduct(Product product)
         {
             string productInfo = JsonSerializer.Serialize(product);
             productInfo = Convert.ToBase64String(Encoding.UTF8.GetBytes(productInfo));
-            QueueClient client = new QueueClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), "cache-products");
+            QueueClient client = new(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), "cache-products");
             client.SendMessage(productInfo);
         }
     }

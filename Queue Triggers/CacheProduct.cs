@@ -21,7 +21,7 @@ namespace magestack.Queue_Triggers
         {
             Product product = JsonSerializer.Deserialize<Product>(queueItem);
 
-            DistributedCacheEntryOptions options = new DistributedCacheEntryOptions()
+            DistributedCacheEntryOptions options = new()
             {
                 AbsoluteExpirationRelativeToNow = new TimeSpan(24, 0, 0)
             };

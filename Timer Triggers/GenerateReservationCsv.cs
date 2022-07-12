@@ -16,13 +16,13 @@ namespace magestack.Timer_Triggers
         public GenerateReservationCsv(string cs)
         {
             this.cs = cs;
-            this.dataSet = new DataSet();
+            dataSet = new DataSet();
         }
 
         [FunctionName("GenerateWsiReservationCsv")]
         public void Run([TimerTrigger("0 0 */3 * * *")]TimerInfo myTimer, ILogger log)
         {
-            using (MySqlConnection conn = new MySqlConnection(cs))
+            using (MySqlConnection conn = new(cs))
             using (MySqlCommand cmd = conn.CreateCommand())
             {
                 string cmdText = @"SELECT product.`sku` AS `SKU`,
@@ -45,7 +45,7 @@ namespace magestack.Timer_Triggers
                 cmd.CommandText = cmdText;
                 conn.Open();
 
-                MySqlDataAdapter dataAdapter = new MySqlDataAdapter()
+                MySqlDataAdapter dataAdapter = new()
                 {
                     SelectCommand = cmd
                 };
@@ -56,7 +56,7 @@ namespace magestack.Timer_Triggers
 
             DataTable reservations = dataSet.Tables["Reservation"];
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             for (int i = 0; i < reservations.Columns.Count; i++)
             {

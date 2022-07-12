@@ -8,13 +8,13 @@ using System.Collections.Generic;
 
 namespace magestack.routes
 {
-    public class GetMagentoOrders
+    public class GetMagentoOrder
     {
-        private readonly string _cs;
+        private readonly string cs;
 
-        public GetMagentoOrders(string cs)
+        public GetMagentoOrder(string cs)
         {
-            _cs = cs;
+            this.cs = cs;
         }
 
         [FunctionName("GetMagentoOrders")]
@@ -26,7 +26,7 @@ namespace magestack.routes
             IActionResult res;
             log.LogInformation($"Searching for {order_num} in the database");
 
-            using (MySqlConnection cxn = new MySqlConnection(_cs))
+            using (MySqlConnection cxn = new(cs))
             using (MySqlCommand cmd = cxn.CreateCommand())
             {
                 cxn.Open();
@@ -53,7 +53,7 @@ namespace magestack.routes
                 }
                 else
                 {
-                    Dictionary<string, string> result = new Dictionary<string, string>();
+                    Dictionary<string, string> result = new();
 
                     while (reader.Read())
                     {
@@ -78,7 +78,7 @@ namespace magestack.routes
             return res;
         }
 
-        private string GetOrdinalValue(MySqlDataReader reader, int ordinal)
+        private static string GetOrdinalValue(MySqlDataReader reader, int ordinal)
         {
             return reader.IsDBNull(ordinal) ? string.Empty : reader.GetString(ordinal);
         }

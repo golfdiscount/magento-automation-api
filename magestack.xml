@@ -4,12 +4,12 @@
         <name>magestack</name>
     </assembly>
     <members>
-        <member name="T:magestack.routes.GetEbayOrders">
+        <member name="T:magestack.routes.GetEbayOrder">
             <summary>
             HTTP trigger for getting an Ebay order from the Magento database
             </summary>
         </member>
-        <member name="M:magestack.routes.GetEbayOrders.#ctor(System.String)">
+        <member name="M:magestack.routes.GetEbayOrder.#ctor(System.String)">
             <summary>
             Constructor for the GetEbayOrders HTTP trigger
             </summary>
@@ -17,7 +17,7 @@
             Connection string to the Magento MySQL database
             </param>
         </member>
-        <member name="M:magestack.routes.GetEbayOrders.Run(Microsoft.AspNetCore.Http.HttpRequest,System.String,Microsoft.Extensions.Logging.ILogger)">
+        <member name="M:magestack.routes.GetEbayOrder.Run(Microsoft.AspNetCore.Http.HttpRequest,System.String,Microsoft.Extensions.Logging.ILogger)">
             <summary>
             Entry point for running the GetEbayOrders HTTP trigger
             </summary>
@@ -35,7 +35,7 @@
             <c>NotFoundObjectResult</c> or <c>OkObjectResult</c>
             </returns>
         </member>
-        <member name="M:magestack.routes.GetEbayOrders.GetOrdinalValue(MySql.Data.MySqlClient.MySqlDataReader,System.Int32)">
+        <member name="M:magestack.routes.GetEbayOrder.GetOrdinalValue(MySql.Data.MySqlClient.MySqlDataReader,System.Int32)">
             <summary>
             Gets the value of a certain column ordinal (column number) in a <paramref name="reader"/>
             </summary>

@@ -1,8 +1,6 @@
 using Azure.Storage.Queues;
 using magestack.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
@@ -82,11 +80,11 @@ namespace magestack.Timer_Triggers
 			LIMIT 100) AS recent_products ON recent_products.sku = e.sku;";
 			MySqlDataReader reader = MySqlHelper.ExecuteReader(cs, query);
 
-			List<Product> productsToCache = new List<Product>();
+			List<Product> productsToCache = new();
 
 			while (reader.Read())
             {
-				Product product = new Product()
+				Product product = new()
                 {
 					name = reader.IsDBNull(0) ? string.Empty : reader.GetString(0),
 					sku = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
@@ -112,11 +110,11 @@ namespace magestack.Timer_Triggers
             };
 		}
 
-		private void QueueProduct(Product product)
+		private static void QueueProduct(Product product)
 		{
 			string productInfo = JsonSerializer.Serialize(product);
 			productInfo = Convert.ToBase64String(Encoding.UTF8.GetBytes(productInfo));
-			QueueClient client = new QueueClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), "cache-products");
+			QueueClient client = new(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), "cache-products");
 			client.SendMessage(productInfo);
 		}
 	}

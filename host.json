@@ -8,7 +8,7 @@
     }
   },
   "queues": {
-    "batchSize": 2,
+    "batchSize": 1,
     "visibilityTimeout": "00:00:30"
   },
   "version": "2.0"
