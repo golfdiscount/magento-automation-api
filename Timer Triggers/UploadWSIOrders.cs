@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Azure;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
 using System;
@@ -15,10 +16,12 @@ namespace magestack
     public class UploadWsiOrders
     {
         private readonly SftpClient sftp;
+        private readonly BlobServiceClient wsiStorage;
 
-        public UploadWsiOrders(SftpClient sftp)
+        public UploadWsiOrders(SftpClient sftp, IAzureClientFactory<BlobServiceClient> clientFactory)
         {
             this.sftp = sftp;
+            wsiStorage = clientFactory.CreateClient("wsi-storage");
         }
 
         [FunctionName("UploadWsiOrders")]
@@ -74,13 +77,10 @@ namespace magestack
 
         /// <summary> Takes file contents and uploads them to a blob at WSI storage </summary>
         /// <param name="fileContent"><c>byte[]</c> of the file content</param>
-        private static void UploadToStorage(byte[] fileContent)
+        private void UploadToStorage(byte[] fileContent)
         {
-            string fileName = Guid.NewGuid().ToString();
-            BlobClient file = new(Environment.GetEnvironmentVariable("wsi_storage"),
-                "wsi-orders",
-                fileName);
-            file.Upload(new BinaryData(fileContent));
+            BlobContainerClient blobContainer = wsiStorage.GetBlobContainerClient("wsi-orders");
+            blobContainer.UploadBlob(Guid.NewGuid().ToString(), new BinaryData(fileContent));
         }
     }
 }
