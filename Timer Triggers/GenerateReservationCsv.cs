@@ -17,14 +17,12 @@ namespace magestack.Timer_Triggers
     {
         private readonly string cs;
         private readonly DataSet dataSet;
-        private readonly IHttpClientFactory httpClientFactory;
         private readonly SecretClient secretClient;
         
-        public GenerateReservationCsv(string cs, IHttpClientFactory httpClientFactory, SecretClient secretClient)
+        public GenerateReservationCsv(string cs, SecretClient secretClient)
         {
             this.cs = cs;
             dataSet = new DataSet();
-            this.httpClientFactory = httpClientFactory;
             this.secretClient = secretClient;
         }
 
