@@ -265,3 +265,6 @@ __pycache__/
 
 # VS Code folder
 .vscode
+
+# Properties folder
+Properties/
