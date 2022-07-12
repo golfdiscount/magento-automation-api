@@ -38,14 +38,11 @@ namespace magestack
                 KeyVaultSecret cacheUri = secretClient.GetSecret("cache-uri");
                 config.Configuration = cacheUri.Value;
             });
-        }
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddAzureClients(builder =>
+            builder.Services.AddAzureClients(clientBuilder =>
             {
                 Uri vaultUri = new(Environment.GetEnvironmentVariable("vault-uri"));
-                builder.AddSecretClient(vaultUri);
+                clientBuilder.AddSecretClient(vaultUri);
             });
         }
 
