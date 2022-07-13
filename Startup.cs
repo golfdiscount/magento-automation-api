@@ -26,11 +26,11 @@ namespace magestack
             Uri keyvaultUri = new(Environment.GetEnvironmentVariable("vault-uri"));
             SecretClient secretClient = new(keyvaultUri, creds);
 
-            string cs = ConnectDb(secretClient);
+/*            string cs = ConnectDb(secretClient);
             SftpClient sftp = ConnectSftp(secretClient);
 
             builder.Services.AddSingleton(cs);
-            builder.Services.AddSingleton(sftp);
+            builder.Services.AddSingleton(sftp);*/
             builder.Services.AddHttpClient();
 
             builder.Services.AddDistributedRedisCache(config =>
