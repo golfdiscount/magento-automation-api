@@ -87,8 +87,21 @@ namespace magestack
             KeyVaultSecret stackUser = secretClient.GetSecret("stack-user");
             KeyVaultSecret stackPass = secretClient.GetSecret("stack-pass");
 
+            int port;
+
+            try
+            {
+                KeyVaultSecret stackPort = secretClient.GetSecret("stack-port");
+                port = int.Parse(stackPort.Value);
+            } catch (Azure.RequestFailedException)
+            {
+                port = 22;
+            }
+            
+            
+
             return new SftpClient(stackHost.Value,
-                22,
+                port,
                 stackUser.Value,
                 stackPass.Value);
         }
