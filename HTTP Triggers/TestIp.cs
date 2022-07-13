@@ -21,6 +21,8 @@ namespace magestack.HTTP_Triggers
             var response = await client.GetAsync("https://ifocnfig.me");
             var responseMessage = await response.Content.ReadAsStringAsync();
 
+            log.LogInformation(responseMessage);
+
             return new OkObjectResult(responseMessage);
         }
     }
