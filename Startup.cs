@@ -26,11 +26,11 @@ namespace magestack
             Uri keyvaultUri = new(Environment.GetEnvironmentVariable("vault-uri"));
             SecretClient secretClient = new(keyvaultUri, creds);
 
-/*            string cs = ConnectDb(secretClient);
+            string cs = ConnectDb(secretClient);
             SftpClient sftp = ConnectSftp(secretClient);
 
             builder.Services.AddSingleton(cs);
-            builder.Services.AddSingleton(sftp);*/
+            builder.Services.AddSingleton(sftp);
             builder.Services.AddHttpClient();
 
             builder.Services.AddDistributedRedisCache(config =>
@@ -112,7 +112,19 @@ namespace magestack
             KeyVaultSecret stackUser = secretClient.GetSecret("stack-user");
             KeyVaultSecret stackPass = secretClient.GetSecret("stack-pass");
 
-            return new SshClient(stackHost.Value, 22, stackUser.Value, stackPass.Value)
+            int port;
+
+            try
+            {
+                KeyVaultSecret stackPort = secretClient.GetSecret("stack-port");
+                port = int.Parse(stackPort.Value);
+            }
+            catch (Azure.RequestFailedException)
+            {
+                port = 22;
+            }
+
+            return new SshClient(stackHost.Value, port, stackUser.Value, stackPass.Value)
             {
                 KeepAliveInterval = new TimeSpan(0, 1, 0)
             };
