@@ -81,7 +81,7 @@ namespace magestack.Timer_Triggers
 			WHERE product_type = 'simple'
 				AND created_at >= SUBDATE(NOW(), INTERVAL 30 MINUTE)
 			LIMIT 100) AS recent_products ON recent_products.sku = e.sku;";
-			MySqlDataReader reader = MySqlHelper.ExecuteReader(cs, query);
+			using MySqlDataReader reader = MySqlHelper.ExecuteReader(cs, query);
 
 			List<Product> productsToCache = new();
 

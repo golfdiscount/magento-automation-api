@@ -90,7 +90,7 @@ namespace magestack.routes
 			                WHERE entity_type_code = 'catalog_product'))
                 WHERE e.sku = @sku;";
             MySqlParameter[] parameters = {new MySqlParameter("sku", sku)};
-            MySqlDataReader reader = MySqlHelper.ExecuteReader(cs, query, parameters);
+            using MySqlDataReader reader = MySqlHelper.ExecuteReader(cs, query, parameters);
 
             while (reader.Read())
             {
