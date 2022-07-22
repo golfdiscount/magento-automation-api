@@ -23,7 +23,7 @@ namespace magestack.Queue_Triggers
 
             DistributedCacheEntryOptions options = new()
             {
-                AbsoluteExpirationRelativeToNow = new TimeSpan(24, 0, 0)
+                AbsoluteExpirationRelativeToNow = new TimeSpan(5, 0, 0, 0)
             };
 
             log.LogInformation($"Caching {product.sku} in Redis cache");
