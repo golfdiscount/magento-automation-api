@@ -39,4 +39,4 @@ jobs:
           app-name: 'func-magento-staging-westus-001'
           slot-name: 'Production'
           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_38E41E5548AD482CB6DD08913EF3FE1E }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_FA478DCA81E54B0D824F6C31AF5DF670 }}
