@@ -52,7 +52,7 @@ namespace magestack.Timer_Triggers
                 cmd.CommandText = cmdText;
                 conn.Open();
 
-                MySqlDataAdapter dataAdapter = new()
+                using MySqlDataAdapter dataAdapter = new()
                 {
                     SelectCommand = cmd
                 };
