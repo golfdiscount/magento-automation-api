@@ -61,7 +61,6 @@ namespace magestack
             ssh.Connect();
 
             ForwardedPortLocal forwardedPort = new("127.0.0.1",
-                5000,
                 dbHost.Value,
                 3306);
             ssh.AddForwardedPort(forwardedPort);
@@ -69,8 +68,8 @@ namespace magestack
 
             MySqlConnectionStringBuilder cnxString = new()
             {
-                Server = "127.0.0.1",
-                Port = 5000,
+                Server = forwardedPort.BoundHost,
+                Port = forwardedPort.BoundPort,
                 UserID = dbUser.Value,
                 Password = dbPass.Value,
                 Database = "golfdi_mage2",
