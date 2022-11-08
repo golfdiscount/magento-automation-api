@@ -27,7 +27,7 @@ namespace magestack
         [FunctionName("UploadWsiOrders")]
         [Singleton]
         public void Run(
-            [TimerTrigger("45 15,03 * * *")]TimerInfo myTimer,
+            [TimerTrigger("45 16,03 * * *")]TimerInfo myTimer,
             ILogger log)
         {
             sftp.Connect();
