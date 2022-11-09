@@ -49,6 +49,15 @@ namespace magestack
 
                 clientBuilder.AddQueueServiceClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
             });
+
+            builder.Services.AddHttpClient("wsi", config =>
+            {
+                KeyVaultSecret wsiUri = secretClient.GetSecret("wsi-uri");
+                config.BaseAddress = new(wsiUri.Value);
+
+                KeyVaultSecret wsiKey = secretClient.GetSecret("wsi-key");
+                config.DefaultRequestHeaders.Add("x-functions-key", wsiKey.Value);
+            });
         }
 
         private static string ConnectDb(SecretClient secretClient)
