@@ -55,15 +55,6 @@ namespace magestack
                 config.BaseAddress = new(wsiUri.Value);
                 config.DefaultRequestHeaders.Add("x-functions-key", wsiKey.Value);
             });
-
-            builder.Services.AddHttpClient("wsi", config =>
-            {
-                KeyVaultSecret wsiUri = secretClient.GetSecret("wsi-uri");
-                config.BaseAddress = new(wsiUri.Value);
-
-                KeyVaultSecret wsiKey = secretClient.GetSecret("wsi-key");
-                config.DefaultRequestHeaders.Add("x-functions-key", wsiKey.Value);
-            });
         }
 
         private static string ConnectDb(SecretClient secretClient)
