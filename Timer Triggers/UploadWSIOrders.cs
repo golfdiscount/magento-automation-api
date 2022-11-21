@@ -84,9 +84,9 @@ namespace magestack
                 }
                 else log.LogWarning("There were no WSI files to upload");
             } 
-            catch (HttpRequestException e)
+            catch
             {
-                throw e;
+                throw;
             }
             finally
             {
