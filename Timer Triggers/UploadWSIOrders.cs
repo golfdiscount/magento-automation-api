@@ -86,8 +86,7 @@ namespace magestack
             } 
             catch (HttpRequestException e)
             {
-                log.LogError("Unable to send network request to WSI API");
-                log.LogError(e.Message);
+                throw e;
             }
             finally
             {
