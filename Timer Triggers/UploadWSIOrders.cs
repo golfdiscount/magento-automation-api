@@ -46,7 +46,7 @@ namespace magestack
 
                 foreach (SftpFile file in files)
                 {
-                    Regex rgx = new($"PT_WSI_{string.Format("{0:MM_dd_yyy}", DateTime.Today)}");
+                    Regex rgx = new($"PT_WSI");
 
                     if (rgx.IsMatch(file.Name) && !file.IsDirectory)
                     {
@@ -56,7 +56,7 @@ namespace magestack
 
                 if (wsiFiles.Count != 0)
                 {
-                    log.LogInformation($"Found {wsiFiles.Count} WSI file(s) for {string.Format("{0:MM/dd/yyy}", DateTime.Today)}");
+                    log.LogInformation($"Found {wsiFiles.Count} WSI file(s)");
                     log.LogInformation("Joining files");
                     List<byte> fileBytes = new();
 
