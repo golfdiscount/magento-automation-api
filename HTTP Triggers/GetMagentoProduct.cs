@@ -32,12 +32,19 @@ namespace magestack.routes
             Product product = new();
             log.LogInformation($"Searching for {sku} in Redis cache");
 
-            string productInfo = cache.GetString(sku);
-
-            if (productInfo != null)
+            try
             {
-                log.LogInformation($"Found {sku} in Redis cache");
-                return new JsonResult(JsonSerializer.Deserialize<Product>(productInfo));
+                string productInfo = cache.GetString(sku);
+
+                if (productInfo != null)
+                {
+                    log.LogInformation($"Found {sku} in Redis cache");
+                    return new JsonResult(JsonSerializer.Deserialize<Product>(productInfo));
+                }
+            }
+            catch
+            {
+                log.LogError($"Unable to query cache");
             }
 
             log.LogWarning($"Unable to find {sku} in cache, searching in database");
