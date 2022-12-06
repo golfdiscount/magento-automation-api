@@ -44,13 +44,21 @@ namespace magestack
                 IEnumerable<SftpFile> files = sftp.ListDirectory(sftp.WorkingDirectory);
                 List<SftpFile> wsiFiles = new();
 
+                // These are files that indicate there were no orders to generate at that time stamp
+                // and should be deleted
+                List<SftpFile> noUpdateFiles = new();
+
                 foreach (SftpFile file in files)
                 {
-                    Regex rgx = new($"PT_WSI");
+                    Regex ptRgx = new($"PT_WSI");
+                    Regex noUpdateRgx = new($"PT_NO_UPDATE");
 
-                    if (rgx.IsMatch(file.Name) && !file.IsDirectory)
+                    if (ptRgx.IsMatch(file.Name) && !file.IsDirectory)
                     {
                         wsiFiles.Add(file);
+                    } else if (noUpdateRgx.IsMatch(file.Name) && !file.IsDirectory)
+                    {
+                        noUpdateFiles.Add(file);
                     }
                 }
 
@@ -72,17 +80,26 @@ namespace magestack
                     response.EnsureSuccessStatusCode();
 
                     log.LogInformation("File sent to WSI successfully");
+                }
 
-                    if (bool.Parse(Environment.GetEnvironmentVariable("ArchiveFiles")))
+                // Move PT_WSI files to the PT_archive directory
+                // Delete any PT_NO_UPDATE files
+                if (bool.Parse(Environment.GetEnvironmentVariable("ArchiveFiles")))
+                {
+                    log.LogInformation($"Archiving {wsiFiles.Count} WSI files");
+                    foreach (SftpFile file in wsiFiles)
                     {
-                        foreach (SftpFile file in wsiFiles)
-                        {
-                            log.LogInformation($"Archiving {file.Name}");
-                            file.MoveTo($"{sftp.WorkingDirectory}/PT_archive/{file.Name}");
-                        }
+                        log.LogInformation($"Archiving {file.Name}");
+                        file.MoveTo($"{sftp.WorkingDirectory}/PT_archive/{file.Name}");
+                    }
+
+                    log.LogInformation($"Deleting {noUpdateFiles.Count} PT_NO_UPDATE files");
+                    foreach (SftpFile file in noUpdateFiles)
+                    {
+                        log.LogInformation($"Deleting {file.Name}");
+                        file.Delete();
                     }
                 }
-                else log.LogWarning("There were no WSI files to upload");
             } 
             catch
             {
