@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 
-namespace Pgd.Magento.Routes;
+namespace Pgd.Magento.HttpTriggers;
 
 /// <summary>
 /// HTTP trigger for getting an Ebay order from the Magento database

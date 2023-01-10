@@ -7,7 +7,7 @@ using MySql.Data.MySqlClient;
 using Pgd.Magento.Models;
 using Pgd.Magento.Data;
 
-namespace Pgd.Magento.Routes;
+namespace Pgd.Magento.HttpTriggers;
 
 public class GetMagentoOrder
 {
