@@ -1,12 +1,12 @@
-using magestack.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using Pgd.Magento.Models;
 using StackExchange.Redis;
 using System;
 using System.Text.Json;
 
-namespace magestack.Queue_Triggers
+namespace Pgd.Magento.QueueTriggers
 {
     public class CacheProduct
     {

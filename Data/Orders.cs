@@ -1,7 +1,7 @@
-﻿using magestack.Models;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
+using Pgd.Magento.Models;
 
-namespace magestack.Data
+namespace Pgd.Magento.Data
 {
     public static class Orders
     {
@@ -11,7 +11,7 @@ namespace magestack.Data
             Billing
         }
 
-        public static OrderModel GetOrder (string incrementId, MySqlConnection conn)
+        public static OrderModel GetOrder(string incrementId, MySqlConnection conn)
         {
             MySqlCommand cmd = conn.CreateCommand();
             cmd.CommandText = "SELECT sales_order.entity_id, " +
@@ -30,7 +30,7 @@ namespace magestack.Data
             cmd.Parameters.AddWithValue("@increment_id", incrementId);
 
             using MySqlDataReader reader = cmd.ExecuteReader();
-            
+
             if (!reader.HasRows)
             {
                 return null;
@@ -77,10 +77,11 @@ namespace magestack.Data
             if (addressType == AddressType.Shipping)
             {
                 cmd.Parameters.AddWithValue("@address_type", "shipping");
-            } else
+            }
+            else
             {
                 cmd.Parameters.AddWithValue("@address_type", "billing");
-            }           
+            }
 
             using MySqlDataReader reader = cmd.ExecuteReader();
             reader.Read();

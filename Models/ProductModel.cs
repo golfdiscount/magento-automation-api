@@ -1,4 +1,4 @@
-﻿namespace magestack.Models
+﻿namespace Pgd.Magento.Models
 {
     public class ProductModel
     {

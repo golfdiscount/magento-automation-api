@@ -11,7 +11,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 
-namespace magestack.Timer_Triggers
+namespace Pgd.Magento.TimerTriggers
 {
     public class GenerateReservationCsv
     {

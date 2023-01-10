@@ -4,13 +4,14 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
+using Pgd.Magento;
 using Renci.SshNet;
 using StackExchange.Redis;
 using System;
 
-[assembly: FunctionsStartup(typeof(magestack.Startup))]
+[assembly: FunctionsStartup(typeof(Startup))]
 
-namespace magestack
+namespace Pgd.Magento
 {
     /// <summary>
     /// Class representing startup behavior for Azure function environment
@@ -97,12 +98,13 @@ namespace magestack
             {
                 KeyVaultSecret stackPort = secretClient.GetSecret("stack-port");
                 port = int.Parse(stackPort.Value);
-            } catch (Azure.RequestFailedException)
+            }
+            catch (Azure.RequestFailedException)
             {
                 port = 22;
             }
-            
-            
+
+
 
             return new SftpClient(stackHost.Value,
                 port,

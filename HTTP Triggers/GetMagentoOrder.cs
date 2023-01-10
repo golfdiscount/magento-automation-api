@@ -4,39 +4,38 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
-using magestack.Data;
-using magestack.Models;
+using Pgd.Magento.Models;
+using Pgd.Magento.Data;
 
-namespace magestack.routes
+namespace Pgd.Magento.Routes;
+
+public class GetMagentoOrder
 {
-    public class GetMagentoOrder
+    private readonly string cs;
+
+    public GetMagentoOrder(string cs)
     {
-        private readonly string cs;
+        this.cs = cs;
+    }
 
-        public GetMagentoOrder(string cs)
+    [FunctionName("GetMagentoOrders")]
+    public IActionResult Run(
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "orders/{orderNumber}")] HttpRequest req,
+        string orderNumber,
+        ILogger log)
+    {
+        log.LogInformation($"Searching for {orderNumber} in the database");
+
+        using MySqlConnection conn = new(cs);
+        conn.Open();
+
+        OrderModel order = Orders.GetOrder(orderNumber, conn);
+
+        if (order == null)
         {
-            this.cs = cs;
+            return new NotFoundResult();
         }
 
-        [FunctionName("GetMagentoOrders")]
-        public IActionResult Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "orders/{orderNumber}")] HttpRequest req,
-            string orderNumber,
-            ILogger log)
-        {
-            log.LogInformation($"Searching for {orderNumber} in the database");
-
-            using MySqlConnection conn = new(cs);
-            conn.Open();
-
-            OrderModel order = Orders.GetOrder(orderNumber, conn);
-
-            if (order == null)
-            {
-                return new NotFoundResult();
-            }
-
-            return new OkObjectResult(order);
-        }
+        return new OkObjectResult(order);
     }
 }

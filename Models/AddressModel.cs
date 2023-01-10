@@ -1,9 +1,9 @@
-﻿namespace magestack.Models
+﻿namespace Pgd.Magento.Models
 {
     public class AddressModel
     {
         public string Name { get; set; }
-        
+
         public string Street { get; set; }
 
         public string City { get; set; }

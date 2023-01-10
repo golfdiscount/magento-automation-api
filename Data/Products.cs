@@ -1,8 +1,8 @@
-﻿using magestack.Models;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
+using Pgd.Magento.Models;
 using System.Collections.Generic;
 
-namespace magestack.Data
+namespace Pgd.Magento.Data
 {
     public static class Products
     {

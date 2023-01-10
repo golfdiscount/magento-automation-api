@@ -1,6 +1,4 @@
 using Azure.Storage.Queues;
-using magestack.Data;
-using magestack.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Azure;
@@ -12,8 +10,10 @@ using System;
 using System.Text;
 using System.Text.Json;
 using System.Collections.Generic;
+using Pgd.Magento.Models;
+using Pgd.Magento.Data;
 
-namespace magestack.Timer_Triggers
+namespace Pgd.Magento.TimerTriggers
 {
     public class CacheMagentoProducts
     {
