@@ -1,4 +1,3 @@
-using Azure.Storage.Queues;
 using magestack.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -10,6 +9,7 @@ using MySql.Data.MySqlClient;
 using System;
 using System.Text;
 using System.Text.Json;
+using magestack.Data;
 
 namespace magestack.routes
 {
@@ -29,7 +29,7 @@ namespace magestack.routes
             string sku,
             ILogger log)
         {
-            Product product = new();
+            ProductModel product = new();
             log.LogInformation($"Searching for {sku} in Redis cache");
 
             try
@@ -39,7 +39,7 @@ namespace magestack.routes
                 if (productInfo != null)
                 {
                     log.LogInformation($"Found {sku} in Redis cache");
-                    return new JsonResult(JsonSerializer.Deserialize<Product>(productInfo));
+                    return new JsonResult(JsonSerializer.Deserialize<ProductModel>(productInfo));
                 }
             }
             catch
@@ -49,80 +49,25 @@ namespace magestack.routes
 
             log.LogWarning($"Unable to find {sku} in cache, searching in database");
 
-            string query = $@"SELECT v1.value AS 'name',
-                    e.sku,
-                    FORMAT(d1.value, 2) AS 'price',
-                    t1.value AS 'short_description',
-                    v2.value AS 'upc'
-                FROM catalog_product_entity e
-                LEFT JOIN catalog_product_entity_varchar v1 ON e.entity_id = v1.entity_id
-                AND v1.store_id = 0
-                AND v1.attribute_id =(
-                    SELECT attribute_id
-                    FROM eav_attribute
-                    WHERE attribute_code = 'name'
-                    AND entity_type_id = (
-                        SELECT entity_type_id
-                        FROM eav_entity_type
-                        WHERE entity_type_code = 'catalog_product'))
-                LEFT JOIN catalog_product_entity_text t1 ON e.entity_id = t1.entity_id
-                AND t1.store_id = 0
-                AND t1.attribute_id = (
-                    SELECT attribute_id
-                    FROM eav_attribute
-                    WHERE attribute_code = 'short_description'
-                    AND entity_type_id = (
-                        SELECT entity_type_id
-                        FROM eav_entity_type
-                        WHERE entity_type_code = 'catalog_product'))
-                LEFT JOIN catalog_product_entity_decimal d1 ON e.entity_id = d1.entity_id
-                AND d1.store_id = 0
-                AND d1.attribute_id = (
-                    SELECT attribute_id
-                    FROM eav_attribute
-                    WHERE attribute_code = 'price'
-                    AND entity_type_id = (
-                        SELECT entity_type_id
-                        FROM eav_entity_type
-                        WHERE entity_type_code = 'catalog_product'))
-                LEFT JOIN catalog_product_entity_varchar v2 ON e.entity_id = v2.entity_id
-                AND v2.store_id = 0
-                AND v2.attribute_id =(
-	                SELECT attribute_id
-	                FROM eav_attribute
-	                WHERE attribute_code = 'upc'
-		                AND entity_type_id = (
-			                SELECT entity_type_id
-			                FROM eav_entity_type
-			                WHERE entity_type_code = 'catalog_product'))
-                WHERE e.sku = @sku;";
-            MySqlParameter[] parameters = {new MySqlParameter("sku", sku)};
-            using MySqlDataReader reader = MySqlHelper.ExecuteReader(cs, query, parameters);
+            using MySqlConnection conn = new(cs);
+            conn.Open();
+            product = Products.GetProduct(sku, conn);
 
-            while (reader.Read())
+            if (product == null)
             {
-                product.name = reader.IsDBNull(0) ? string.Empty : reader.GetString(0);
-                product.sku = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
-                product.price = reader.IsDBNull(2) ? 0 : reader.GetDecimal(2);
-                product.description = reader.IsDBNull(3) ? string.Empty : reader.GetString(3);
-                product.upc = reader.IsDBNull(4) ? string.Empty : reader.GetString(4);
-
-                log.LogInformation($"Queueing {sku} to be cached");
-                QueueProduct(product);
-
-                return new OkObjectResult(product);
+                return new NotFoundObjectResult($"{sku} was not found in Magento");
             }
 
-            log.LogWarning($"Unable to find {sku} in database");
-            return new NotFoundObjectResult($"{sku} was not found in Magento"); ;
+            return new OkObjectResult(product);
+            
         }
 
-        private static void QueueProduct(Product product)
+/*        private static void QueueProduct(Product product)
         {
             string productInfo = JsonSerializer.Serialize(product);
             productInfo = Convert.ToBase64String(Encoding.UTF8.GetBytes(productInfo));
             QueueClient client = new(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), "cache-products");
             client.SendMessage(productInfo);
-        }
+        }*/
     }
 }
