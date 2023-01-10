@@ -4,8 +4,19 @@ using System.Collections.Generic;
 
 namespace Pgd.Magento.Data
 {
+    /// <summary>
+    /// Contains data access methods to interact with product information.
+    /// </summary>
     public static class Products
     {
+        /// <summary>
+        /// Retrieves product information based on its SKU.
+        /// </summary>
+        /// <param name="sku">The SKU number of the product to retrieve</param>
+        /// <param name="conn">Open connection to the database</param>
+        /// <returns>Product information if the SKU is found in the database. Returns <see langword="null"/>
+        /// if the SKU could not be found.</returns>
+        /// <exception cref="MySqlException">Thrown when <paramref name="conn"/> is not open.</exception>
         public static ProductModel GetProduct(string sku, MySqlConnection conn)
         {
             MySqlCommand cmd = conn.CreateCommand();
@@ -79,11 +90,20 @@ namespace Pgd.Magento.Data
             return product;
         }
 
-        public static List<ProductModel> GetProductByOrder(int entity_id, MySqlConnection conn)
+        /// <summary>
+        /// Retrieves all products for an order.
+        /// </summary>
+        /// <param name="entityId">The entity ID of the order to retrieve products for. This is the 
+        /// private, unique identifier for an order.</param>
+        /// <param name="conn">Open connection to the database</param>
+        /// <returns>A list of products for an order. Returns <see langword="null"/> if the
+        /// order could not be found.</returns>
+        /// <exception cref="MySqlException">Thrown when <paramref name="conn"/> is not open.</exception>
+        public static List<ProductModel> GetProductByOrder(int entityId, MySqlConnection conn)
         {
             using MySqlCommand cmd = conn.CreateCommand();
             cmd.CommandText = "SELECT DISTINCT sku FROM sales_order_item WHERE order_id = @entity_id;";
-            cmd.Parameters.AddWithValue("@entity_id", entity_id);
+            cmd.Parameters.AddWithValue("@entity_id", entityId);
 
             using MySqlDataReader reader = cmd.ExecuteReader();
 
