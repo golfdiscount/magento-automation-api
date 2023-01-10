@@ -5,6 +5,7 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using Renci.SshNet;
+using StackExchange.Redis;
 using System;
 
 [assembly: FunctionsStartup(typeof(magestack.Startup))]
@@ -29,15 +30,13 @@ namespace magestack
             string cs = ConnectDb(secretClient);
             SftpClient sftp = ConnectSftp(secretClient);
 
+            KeyVaultSecret cacheUri = secretClient.GetSecret("cache-uri");
+            ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(cacheUri.Value);
+
             builder.Services.AddSingleton(cs);
             builder.Services.AddSingleton(sftp);
             builder.Services.AddHttpClient();
-
-            builder.Services.AddDistributedRedisCache(config =>
-            {
-                KeyVaultSecret cacheUri = secretClient.GetSecret("cache-uri");
-                config.Configuration = cacheUri.Value;
-            });
+            builder.Services.AddSingleton(redis);
 
             builder.Services.AddAzureClients(clientBuilder =>
             {
