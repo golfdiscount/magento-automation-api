@@ -1,7 +1,5 @@
-﻿using Azure.Storage.Blobs;
-using Microsoft.Azure.WebJobs;
+﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Azure;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
 using System;
@@ -73,8 +71,10 @@ public class UploadWsiOrders
                     fileBytes.AddRange(sftp.ReadAllBytes(file.FullName));
                 }
 
-                HttpRequestMessage requestMessage = new(HttpMethod.Post, "api/orders");
-                requestMessage.Content = new ByteArrayContent(fileBytes.ToArray());
+                HttpRequestMessage requestMessage = new(HttpMethod.Post, "api/orders")
+                {
+                    Content = new ByteArrayContent(fileBytes.ToArray())
+                };
                 requestMessage.Content.Headers.ContentType = new("text/csv");
                 HttpResponseMessage response = await wsiClient.SendAsync(requestMessage);
                 response.EnsureSuccessStatusCode();
