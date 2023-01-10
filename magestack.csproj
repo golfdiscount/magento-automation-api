@@ -26,7 +26,6 @@
     <PackageReference Include="MySql.Data" Version="8.0.29" />
     <PackageReference Include="SendGrid" Version="9.28.1" />
     <PackageReference Include="SSH.NET" Version="2020.0.2" />
-    <PackageReference Include="StackExchange.Redis" Version="2.6.86" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
