@@ -98,7 +98,7 @@ namespace magestack.Timer_Triggers
             ftp.Connect();
 
             byte[] fileContent = Encoding.UTF8.GetBytes(sb.ToString());
-            ftp.Upload(fileContent, "dufferscorner.com/media/reservation.csv");
+            ftp.UploadBytes(fileContent, "dufferscorner.com/media/reservation.csv");
         }
     }
 }
