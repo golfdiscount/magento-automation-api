@@ -24,7 +24,7 @@ public class GetMagentoProduct
         _redisDb = redis.GetDatabase();
     }
 
-    [FunctionName("GetMagentoProducts")]
+    [FunctionName("Products")]
     public IActionResult Run(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "products/{sku}")] HttpRequest req,
         string sku,

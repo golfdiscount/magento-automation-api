@@ -18,7 +18,7 @@ public class GetMagentoOrder
         this.cs = cs;
     }
 
-    [FunctionName("GetMagentoOrders")]
+    [FunctionName("Orders")]
     public IActionResult Run(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "orders/{orderNumber}")] HttpRequest req,
         string orderNumber,
