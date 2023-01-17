@@ -28,7 +28,9 @@ namespace Pgd.Magento
             Uri keyvaultUri = new(Environment.GetEnvironmentVariable("vault-uri"));
             SecretClient secretClient = new(keyvaultUri, creds);
 
-            string cs = ConnectDb(secretClient);
+            SshClient ssh = ConnectSsh(secretClient);
+
+            string cs = ConnectDb(secretClient, ssh);
             SftpClient sftp = ConnectSftp(secretClient);
 
             KeyVaultSecret cacheUri = secretClient.GetSecret("cache-uri");
@@ -36,7 +38,7 @@ namespace Pgd.Magento
 
             builder.Services.AddSingleton(cs);
             builder.Services.AddSingleton(sftp);
-            builder.Services.AddHttpClient();
+            builder.Services.AddSingleton(ssh);
             builder.Services.AddSingleton(redis);
 
             builder.Services.AddAzureClients(clientBuilder =>
@@ -57,13 +59,12 @@ namespace Pgd.Magento
             });
         }
 
-        private static string ConnectDb(SecretClient secretClient)
+        private static string ConnectDb(SecretClient secretClient, SshClient ssh)
         {
             KeyVaultSecret dbHost = secretClient.GetSecret("db-host");
             KeyVaultSecret dbUser = secretClient.GetSecret("db-user");
             KeyVaultSecret dbPass = secretClient.GetSecret("db-pass");
 
-            SshClient ssh = ConnectSsh(secretClient);
             ssh.Connect();
 
             ForwardedPortLocal forwardedPort = new("127.0.0.1",
