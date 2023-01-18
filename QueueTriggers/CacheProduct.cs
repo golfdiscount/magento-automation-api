@@ -1,5 +1,4 @@
 using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Pgd.Magento.Models;
 using StackExchange.Redis;
@@ -10,25 +9,21 @@ namespace Pgd.Magento.QueueTriggers
 {
     public class CacheProduct
     {
-        private readonly IDatabase _redisDb;
+        private readonly ConnectionMultiplexer _redis;
 
         public CacheProduct(ConnectionMultiplexer redis)
         {
-            _redisDb = redis.GetDatabase();
+            _redis = redis;
         }
 
         [FunctionName("CacheProduct")]
         public void Run([QueueTrigger("cache-products")]string queueItem, ILogger log)
         {
+            IDatabase db = _redis.GetDatabase();
             ProductModel product = JsonSerializer.Deserialize<ProductModel>(queueItem);
 
-            DistributedCacheEntryOptions options = new()
-            {
-                AbsoluteExpirationRelativeToNow = new TimeSpan(5, 0, 0, 0)
-            };
-
             log.LogInformation($"Caching {product.Sku} in Redis cache");
-            _redisDb.StringSet(product.Sku, queueItem, new TimeSpan(5, 0, 0, 0));
+            db.StringSet(product.Sku, queueItem, new TimeSpan(5, 0, 0, 0));
         }
     }
 }

@@ -71,7 +71,7 @@ public class UploadWsiOrders
                     fileBytes.AddRange(sftp.ReadAllBytes(file.FullName));
                 }
 
-                HttpRequestMessage requestMessage = new(HttpMethod.Post, "api/orders")
+                HttpRequestMessage requestMessage = new(HttpMethod.Post, "api/picktickets")
                 {
                     Content = new ByteArrayContent(fileBytes.ToArray())
                 };

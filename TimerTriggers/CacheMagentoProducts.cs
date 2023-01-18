@@ -15,12 +15,12 @@ namespace Pgd.Magento.TimerTriggers
     public class CacheMagentoProducts
     {
         private readonly string cs;
-		private readonly IDatabase _redisDb;
+		private readonly ConnectionMultiplexer _redis;
 		private readonly QueueClient productCacheQueue;
         public CacheMagentoProducts(string cs, ConnectionMultiplexer redis, QueueServiceClient queueClient)
         {
             this.cs = cs;
-            _redisDb = redis.GetDatabase();
+            _redis = redis;
 			productCacheQueue = queueClient.GetQueueClient("cache-products");
         }
 
@@ -44,11 +44,12 @@ namespace Pgd.Magento.TimerTriggers
 
 			List<string> skus = new();
 			List<ProductModel> productsToCache = new();
+			IDatabase db = _redis.GetDatabase();
 
 			while (reader.Read())
 			{
 				string sku = reader.GetString("sku");
-                string productInfo = _redisDb.StringGet(sku);
+                string productInfo = db.StringGet(sku);
 
 				if (productInfo == null)
 				{
