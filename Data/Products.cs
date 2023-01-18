@@ -99,10 +99,13 @@ namespace Pgd.Magento.Data
         /// <returns>A list of products for an order. Returns <see langword="null"/> if the
         /// order could not be found.</returns>
         /// <exception cref="MySqlException">Thrown when <paramref name="conn"/> is not open.</exception>
-        public static List<ProductModel> GetProductByOrder(int entityId, MySqlConnection conn)
+        public static List<LineItemModel> GetProductByOrder(int entityId, MySqlConnection conn)
         {
             using MySqlCommand cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT DISTINCT sku FROM sales_order_item WHERE order_id = @entity_id;";
+            cmd.CommandText = "SELECT sku, CAST(qty_ordered AS DECIMAL) AS quantity " +
+                "FROM sales_order_item " +
+                "WHERE order_id = @entity_id " +
+                "AND product_type = 'simple';";
             cmd.Parameters.AddWithValue("@entity_id", entityId);
 
             using MySqlDataReader reader = cmd.ExecuteReader();
@@ -112,23 +115,33 @@ namespace Pgd.Magento.Data
                 return null;
             }
 
-            List<string> skus = new();
+            // Mapping of SKU to quantity ordered
+            Dictionary<string, int> skus = new();
 
             while (reader.Read())
             {
-                skus.Add(reader.GetString("sku"));
+                skus.Add(reader.GetString("sku"), reader.GetInt32("quantity"));
             }
 
             reader.Close();
 
-            List<ProductModel> products = new();
+            List<LineItemModel> lineItems = new();
 
-            foreach (string sku in skus)
+            foreach (string sku in skus.Keys)
             {
-                products.Add(GetProduct(sku, conn));
+                ProductModel product = GetProduct(sku, conn);
+                lineItems.Add(new()
+                {
+                    Name = product.Name,
+                    Upc = product.Upc,
+                    Description = product.Description,
+                    Price = product.Price,
+                    Sku = sku,
+                    Quantity = skus[sku]
+                });
             }
 
-            return products;
+            return lineItems;
         }
     }
 }
