@@ -72,7 +72,7 @@ namespace Pgd.Magento.Data
 
             order.Customer = GetAddress(order.Id, AddressType.Billing, conn);
             order.Recipient = GetAddress(order.Id, AddressType.Shipping, conn);
-            order.Products = Products.GetProductByOrder(order.Id, conn);
+            order.LineItems = Products.GetProductByOrder(order.Id, conn);
 
             return order;
         }
