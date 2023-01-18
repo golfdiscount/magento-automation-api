@@ -1,8 +1,5 @@
 using Azure.Storage.Queues;
 using Microsoft.Azure.WebJobs;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Azure;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using StackExchange.Redis;
