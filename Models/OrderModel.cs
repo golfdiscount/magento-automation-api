@@ -25,7 +25,7 @@ namespace Pgd.Magento.Models
 
         public decimal ShippingTotal { get; set; }
 
-        public List<ProductModel> Products { get; set; }
+        public List<LineItemModel> LineItems { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
