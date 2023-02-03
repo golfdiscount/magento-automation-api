@@ -3,6 +3,9 @@ using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Renci.SshNet;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Pgd.Magento.TimerTriggers
 {
@@ -12,18 +15,33 @@ namespace Pgd.Magento.TimerTriggers
         private readonly ILogger _logger;
         private readonly SftpClient _sftp;
         private readonly SshClient _ssh;
+        private readonly HttpClient _httpClient;
 
-        public CheckConnections(string cs, SftpClient sftp, SshClient ssh, ILoggerFactory logFactory)
+        public CheckConnections(string cs, SftpClient sftp, SshClient ssh, IHttpClientFactory clientFactory, ILoggerFactory logFactory)
         {
             _cs = cs;
             _logger = logFactory.CreateLogger(LogCategories.CreateFunctionUserCategory("Pgd.Magento.HttpTriggers.CheckConnections"));
             _sftp = sftp;
             _ssh = ssh;
+            _httpClient = clientFactory.CreateClient();
         }
 
         [FunctionName("CheckConnections")]
-        public void Run([TimerTrigger("0 */30 * * * *")]TimerInfo myTimer, ILogger log)
+        public async Task Run([TimerTrigger("0 */30 * * * *")]TimerInfo myTimer)
         {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync("https://ipinfo.io/ip");
+                string responseContent = await response.Content.ReadAsStringAsync();
+                response.EnsureSuccessStatusCode();
+                _logger.LogInformation($"IP: {responseContent}");
+
+            }
+            catch
+            {
+                _logger.LogError("Unable to determine IP address");
+            }
+
             try
             {
                 _logger.LogInformation("Pinging SSH");
