@@ -3,7 +3,9 @@ using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Renci.SshNet;
-using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -31,10 +33,17 @@ namespace Pgd.Magento.TimerTriggers
         {
             try
             {
+                IEnumerable<IPAddress> localIPs = Dns.GetHostAddresses(Dns.GetHostName()).Where(ip => !IPAddress.IsLoopback(ip));
+
+                foreach (IPAddress ip in localIPs)
+                {
+                    _logger.LogInformation($"Host IP: {ip}");
+                }
+
                 HttpResponseMessage response = await _httpClient.GetAsync("https://ipinfo.io/ip");
                 string responseContent = await response.Content.ReadAsStringAsync();
                 response.EnsureSuccessStatusCode();
-                _logger.LogInformation($"IP: {responseContent}");
+                _logger.LogInformation($"Outbound IP: {responseContent}");
 
             }
             catch
