@@ -23,7 +23,7 @@ namespace Pgd.Magento.QueueTriggers
             ProductModel product = JsonSerializer.Deserialize<ProductModel>(queueItem);
 
             log.LogInformation($"Caching {product.Sku} in Redis cache");
-            db.StringSet(product.Sku, queueItem, new TimeSpan(5, 0, 0, 0));
+            db.StringSet(product.Sku, queueItem, new TimeSpan(0, 36, 0, 0));
         }
     }
 }
