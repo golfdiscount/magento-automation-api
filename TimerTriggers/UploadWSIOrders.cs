@@ -30,7 +30,7 @@ public class UploadWsiOrders
     [FunctionName("UploadWsiOrders")]
     [Singleton]
     public async Task Run(
-        [TimerTrigger("45 08,20 * * *")]TimerInfo myTimer,
+        [TimerTrigger("00 09,21 * * *")]TimerInfo myTimer,
         ILogger log)
     {
         sftp.Connect();
