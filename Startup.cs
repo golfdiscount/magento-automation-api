@@ -64,6 +64,7 @@ namespace Pgd.Magento
             KeyVaultSecret dbHost = secretClient.GetSecret("db-host");
             KeyVaultSecret dbUser = secretClient.GetSecret("db-user");
             KeyVaultSecret dbPass = secretClient.GetSecret("db-pass");
+            KeyVaultSecret dbSchema = secretClient.GetSecret("db-schema");
 
             ssh.Connect();
 
@@ -79,7 +80,7 @@ namespace Pgd.Magento
                 Port = forwardedPort.BoundPort,
                 UserID = dbUser.Value,
                 Password = dbPass.Value,
-                Database = "golfdi_mage2",
+                Database = dbSchema.Value,
                 Pooling = true,
                 MinimumPoolSize = 3
             };
