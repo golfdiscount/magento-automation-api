@@ -15,7 +15,7 @@ namespace Pgd.Magento;
 /// </summary>
 public class UploadWsiOrders
 {
-    private const string EXPORT_PATH = "/microcloud/domains/golfdi/domains/golfdiscount.com/http/var/export/mmexportcsv";
+    private const string EXPORT_PATH = "/home/jetrails/golfdiscount.com/html/var/export/mmexportcsv";
     private readonly SftpClient sftp;
     private readonly HttpClient wsiClient;
 
