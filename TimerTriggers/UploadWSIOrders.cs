@@ -33,7 +33,10 @@ public class UploadWsiOrders
         [TimerTrigger("00 09,21 * * *")]TimerInfo myTimer,
         ILogger log)
     {
-        sftp.Connect();
+        if (!sftp.IsConnected)
+        {
+            sftp.Connect();
+        }
 
         try
         {
