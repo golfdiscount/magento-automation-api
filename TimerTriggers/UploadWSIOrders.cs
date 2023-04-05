@@ -39,7 +39,7 @@ public class UploadWsiOrders
         {
             log.LogInformation($"Searching for WSI order files...");
 
-            if (sftp.WorkingDirectory != EXPORT_PATH) sftp.ChangeDirectory("var/export/mmexportcsv");
+            if (sftp.WorkingDirectory != EXPORT_PATH) sftp.ChangeDirectory(EXPORT_PATH);
 
             IEnumerable<SftpFile> files = sftp.ListDirectory(sftp.WorkingDirectory);
 
