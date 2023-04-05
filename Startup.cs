@@ -93,20 +93,9 @@ namespace Pgd.Magento
             KeyVaultSecret stackHost = secretClient.GetSecret("stack-host");
             KeyVaultSecret stackUser = secretClient.GetSecret("stack-user");
             KeyVaultSecret stackPass = secretClient.GetSecret("stack-pass");
+            KeyVaultSecret stackPort = secretClient.GetSecret("stack-port");
 
-            int port;
-
-            try
-            {
-                KeyVaultSecret stackPort = secretClient.GetSecret("stack-port");
-                port = int.Parse(stackPort.Value);
-            }
-            catch (Azure.RequestFailedException)
-            {
-                port = 22;
-            }
-
-
+            int port = int.Parse(stackPort.Value);
 
             return new SftpClient(stackHost.Value,
                 port,
@@ -119,18 +108,9 @@ namespace Pgd.Magento
             KeyVaultSecret stackHost = secretClient.GetSecret("stack-host");
             KeyVaultSecret stackUser = secretClient.GetSecret("stack-user");
             KeyVaultSecret stackPass = secretClient.GetSecret("stack-pass");
+            KeyVaultSecret stackPort = secretClient.GetSecret("stack-port");
 
-            int port;
-
-            try
-            {
-                KeyVaultSecret stackPort = secretClient.GetSecret("stack-port");
-                port = int.Parse(stackPort.Value);
-            }
-            catch (Azure.RequestFailedException)
-            {
-                port = 22;
-            }
+            int port = int.Parse(stackPort.Value);
 
             return new SshClient(stackHost.Value, port, stackUser.Value, stackPass.Value)
             {
