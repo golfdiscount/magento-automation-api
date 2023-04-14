@@ -33,13 +33,9 @@ public class UploadWsiOrders
         [TimerTrigger("00 09,21 * * *")]TimerInfo myTimer,
         ILogger log)
     {
-        if (!sftp.IsConnected)
-        {
-            sftp.Connect();
-        }
-
         try
         {
+            sftp.Connect();
             log.LogInformation($"Searching for WSI order files...");
 
             if (sftp.WorkingDirectory != EXPORT_PATH) sftp.ChangeDirectory(EXPORT_PATH);
