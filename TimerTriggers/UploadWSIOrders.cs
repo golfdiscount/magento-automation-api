@@ -86,23 +86,19 @@ public class UploadWsiOrders
                 }
             }
 
-            // Move PT_WSI files to the PT_archive directory
-            // Delete any PT_NO_UPDATE files
-            if (bool.Parse(Environment.GetEnvironmentVariable("ArchiveFiles")))
-            {
-                log.LogInformation($"Archiving {wsiFiles.Count} WSI files");
-                foreach (SftpFile file in wsiFiles)
-                {
-                    log.LogInformation($"Archiving {file.Name}");
-                    file.MoveTo($"{sftp.WorkingDirectory}/PT_archive/{file.Name}");
-                }
 
-                log.LogInformation($"Deleting {noUpdateFiles.Count} PT_NO_UPDATE files");
-                foreach (SftpFile file in noUpdateFiles)
-                {
-                    log.LogInformation($"Deleting {file.Name}");
-                    file.Delete();
-                }
+            log.LogInformation($"Archiving {wsiFiles.Count} WSI files");
+            foreach (SftpFile file in wsiFiles)
+            {
+                log.LogInformation($"Archiving {file.Name}");
+                file.MoveTo($"{sftp.WorkingDirectory}/PT_archive/{file.Name}");
+            }
+
+            log.LogInformation($"Deleting {noUpdateFiles.Count} PT_NO_UPDATE files");
+            foreach (SftpFile file in noUpdateFiles)
+            {
+                log.LogInformation($"Deleting {file.Name}");
+                file.Delete();
             }
         } 
         catch
