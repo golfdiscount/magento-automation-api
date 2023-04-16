@@ -30,7 +30,7 @@ public class UploadWsiOrders
     [FunctionName("UploadWsiOrders")]
     [Singleton]
     public async Task Run(
-        [TimerTrigger("00 09,21 * * *")]TimerInfo myTimer,
+        [TimerTrigger("0 6-16/2 * * *")]TimerInfo myTimer,
         ILogger log)
     {
         try
