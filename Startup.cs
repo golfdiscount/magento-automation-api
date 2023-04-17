@@ -31,15 +31,17 @@ namespace Pgd.Magento
             SshClient ssh = ConnectSsh(secretClient);
 
             string cs = ConnectDb(secretClient, ssh);
-            SftpClient sftp = ConnectSftp(secretClient);
+            ConnectionInfo sftpConnectionInfo = GenerateSftpCredentials(secretClient);
 
             KeyVaultSecret cacheUri = secretClient.GetSecret("cache-uri");
             ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(cacheUri.Value);
 
             builder.Services.AddSingleton(cs);
-            builder.Services.AddSingleton(sftp);
             builder.Services.AddSingleton(ssh);
+            builder.Services.AddSingleton(sftpConnectionInfo);
             builder.Services.AddSingleton(redis);
+
+            builder.Services.AddScoped<ISftpClient, SftpClient>();
 
             builder.Services.AddAzureClients(clientBuilder =>
             {
@@ -88,7 +90,7 @@ namespace Pgd.Magento
             return cnxString.ToString();
         }
 
-        private static SftpClient ConnectSftp(SecretClient secretClient)
+        private static ConnectionInfo GenerateSftpCredentials(SecretClient secretClient)
         {
             KeyVaultSecret stackHost = secretClient.GetSecret("stack-host");
             KeyVaultSecret stackUser = secretClient.GetSecret("stack-user");
@@ -97,10 +99,9 @@ namespace Pgd.Magento
 
             int port = int.Parse(stackPort.Value);
 
-            return new SftpClient(stackHost.Value,
-                port,
-                stackUser.Value,
-                stackPass.Value);
+            PasswordAuthenticationMethod passwordAuth = new(stackUser.Value, stackPass.Value);
+
+            return new(stackHost.Value, port, stackUser.Value, passwordAuth);
         }
 
         private static SshClient ConnectSsh(SecretClient secretClient)
