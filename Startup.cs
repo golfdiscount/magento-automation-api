@@ -28,17 +28,21 @@ namespace Pgd.Magento
             Uri keyvaultUri = new(Environment.GetEnvironmentVariable("vault-uri"));
             SecretClient secretClient = new(keyvaultUri, creds);
 
-            SshClient ssh = ConnectSsh(secretClient);
+            ConnectionInfo sshConnectionInfo = GetSshCredentials(secretClient);
+
+            SshClient ssh = new(sshConnectionInfo)
+            {
+                KeepAliveInterval = new(0, 1, 0)
+            };
 
             string cs = ConnectDb(secretClient, ssh);
-            ConnectionInfo sftpConnectionInfo = GenerateSftpCredentials(secretClient);
 
             KeyVaultSecret cacheUri = secretClient.GetSecret("cache-uri");
             ConnectionMultiplexer redis = ConnectionMultiplexer.Connect(cacheUri.Value);
 
             builder.Services.AddSingleton(cs);
             builder.Services.AddSingleton(ssh);
-            builder.Services.AddSingleton(sftpConnectionInfo);
+            builder.Services.AddSingleton(sshConnectionInfo);
             builder.Services.AddSingleton(redis);
 
             builder.Services.AddAzureClients(clientBuilder =>
@@ -88,7 +92,12 @@ namespace Pgd.Magento
             return cnxString.ToString();
         }
 
-        private static ConnectionInfo GenerateSftpCredentials(SecretClient secretClient)
+        /// <summary>
+        /// Retrieves the credentials for authenticating to a server using SSH from a KeyVault
+        /// </summary>
+        /// <param name="secretClient">KeyVault client with connection to KeyVault containing connection information</param>
+        /// <returns>ConnectionInfo configured with a PasswordAuthenticationMethod</returns>
+        private static ConnectionInfo GetSshCredentials(SecretClient secretClient)
         {
             KeyVaultSecret stackHost = secretClient.GetSecret("stack-host");
             KeyVaultSecret stackUser = secretClient.GetSecret("stack-user");
@@ -100,21 +109,6 @@ namespace Pgd.Magento
             PasswordAuthenticationMethod passwordAuth = new(stackUser.Value, stackPass.Value);
 
             return new(stackHost.Value, port, stackUser.Value, passwordAuth);
-        }
-
-        private static SshClient ConnectSsh(SecretClient secretClient)
-        {
-            KeyVaultSecret stackHost = secretClient.GetSecret("stack-host");
-            KeyVaultSecret stackUser = secretClient.GetSecret("stack-user");
-            KeyVaultSecret stackPass = secretClient.GetSecret("stack-pass");
-            KeyVaultSecret stackPort = secretClient.GetSecret("stack-port");
-
-            int port = int.Parse(stackPort.Value);
-
-            return new SshClient(stackHost.Value, port, stackUser.Value, stackPass.Value)
-            {
-                KeepAliveInterval = new TimeSpan(0, 1, 0)
-            };
         }
     }
 }
