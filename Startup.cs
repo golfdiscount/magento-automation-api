@@ -41,8 +41,6 @@ namespace Pgd.Magento
             builder.Services.AddSingleton(sftpConnectionInfo);
             builder.Services.AddSingleton(redis);
 
-            builder.Services.AddScoped<ISftpClient, SftpClient>();
-
             builder.Services.AddAzureClients(clientBuilder =>
             {
                 clientBuilder.UseCredential(new DefaultAzureCredential());

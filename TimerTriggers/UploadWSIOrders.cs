@@ -21,9 +21,9 @@ public class UploadWsiOrders
     private readonly SftpClient sftp;
     private readonly HttpClient wsiClient;
 
-    public UploadWsiOrders(SftpClient sftp, IHttpClientFactory clientFactory)
+    public UploadWsiOrders(ConnectionInfo sftpConnectionInfo, IHttpClientFactory clientFactory)
     {
-        this.sftp = sftp;
+        this.sftp = new(sftpConnectionInfo);
         wsiClient = clientFactory.CreateClient("wsi");
     }
 
