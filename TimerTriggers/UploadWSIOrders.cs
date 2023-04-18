@@ -18,13 +18,13 @@ namespace Pgd.Magento;
 public class UploadWsiOrders
 {
     private const string EXPORT_PATH = "/home/jetrails/golfdiscount.com/html/var/export/mmexportcsv";
-    private readonly SftpClient sftp;
-    private readonly HttpClient wsiClient;
+    private readonly ConnectionInfo _sftpConnectionInfo;
+    private readonly HttpClient _wsiClient;
 
     public UploadWsiOrders(ConnectionInfo sftpConnectionInfo, IHttpClientFactory clientFactory)
     {
-        this.sftp = new(sftpConnectionInfo);
-        wsiClient = clientFactory.CreateClient("wsi");
+        _sftpConnectionInfo = sftpConnectionInfo;
+        _wsiClient = clientFactory.CreateClient("wsi");
     }
 
     [FunctionName("UploadWsiOrders")]
@@ -33,6 +33,7 @@ public class UploadWsiOrders
         [TimerTrigger("0 6-22/2 * * *")]TimerInfo myTimer,
         ILogger log)
     {
+        SftpClient sftp = new(_sftpConnectionInfo);
         try
         {
             sftp.Connect();
@@ -69,7 +70,7 @@ public class UploadWsiOrders
                             Content = JsonContent.Create(pickTicket)
                         };
 
-                        HttpResponseMessage response = await wsiClient.SendAsync(request);
+                        HttpResponseMessage response = await _wsiClient.SendAsync(request);
 
                         if (!response.IsSuccessStatusCode)
                         {
