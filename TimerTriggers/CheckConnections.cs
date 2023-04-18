@@ -15,15 +15,15 @@ namespace Pgd.Magento.TimerTriggers
     {
         private readonly string _cs;
         private readonly ILogger _logger;
-        private readonly SftpClient _sftp;
+        private readonly ConnectionInfo _sftpConnectionInfo;
         private readonly SshClient _ssh;
         private readonly HttpClient _httpClient;
 
-        public CheckConnections(string cs, SftpClient sftp, SshClient ssh, IHttpClientFactory clientFactory, ILoggerFactory logFactory)
+        public CheckConnections(string cs, ConnectionInfo sftpConnectionInfo, SshClient ssh, IHttpClientFactory clientFactory, ILoggerFactory logFactory)
         {
             _cs = cs;
             _logger = logFactory.CreateLogger(LogCategories.CreateFunctionUserCategory("Pgd.Magento.HttpTriggers.CheckConnections"));
-            _sftp = sftp;
+            _sftpConnectionInfo = sftpConnectionInfo;
             _ssh = ssh;
             _httpClient = clientFactory.CreateClient();
         }
@@ -64,11 +64,12 @@ namespace Pgd.Magento.TimerTriggers
                 throw;
             }
 
+            SftpClient sftp = new(_sftpConnectionInfo);
             try
             {
                 _logger.LogInformation("Pinging SFTP");
-                _sftp.Connect();
-                _sftp.Disconnect();
+                sftp.Connect();
+                sftp.Disconnect();
             }
             catch
             {
